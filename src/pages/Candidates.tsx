@@ -39,6 +39,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { RBACWrapper } from "@/components/layout/RBACWrapper";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 // Initial candidates data
 const initialCandidates: Candidate[] = [
@@ -146,6 +147,9 @@ const CandidatesPage = () => {
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [candidateToEdit, setCandidateToEdit] = useState<Candidate | null>(null);
+  const [importSheetOpen, setImportSheetOpen] = useState(false);
+  const [selectedJobPortal, setSelectedJobPortal] = useState<string>("");
+  const [isImporting, setIsImporting] = useState(false);
 
   // Filter candidates based on search query and status
   const filteredCandidates = candidates.filter((candidate) => {
@@ -287,6 +291,105 @@ const CandidatesPage = () => {
     });
   };
 
+  // Handle updating candidate status
+  const handleUpdateStatus = (candidateId: string, newStatus: Candidate["status"]) => {
+    setCandidates(candidates.map(candidate => 
+      candidate.id === candidateId 
+        ? { ...candidate, status: newStatus } 
+        : candidate
+    ));
+    
+    toast({
+      title: "Status updated",
+      description: `Candidate status has been updated to ${newStatus}.`,
+    });
+  };
+
+  // Handle importing candidates from job portals
+  const handleImportCandidates = async () => {
+    if (!selectedJobPortal) {
+      toast({
+        title: "Error",
+        description: "Please select a job portal.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      // In a real app, we would call an API here
+      // For now, simulate an API call with a delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      // Simulate importing candidates
+      const importedCandidates: Candidate[] = [
+        {
+          id: `imported-${Date.now()}-1`,
+          name: "Morgan Roberts",
+          email: "morgan.roberts@example.com",
+          position: "DevOps Engineer",
+          status: "new",
+          date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+          initials: "MR"
+        },
+        {
+          id: `imported-${Date.now()}-2`,
+          name: "Taylor Swift",
+          email: "taylor.swift@example.com",
+          position: "UI/UX Designer",
+          status: "new",
+          date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+          initials: "TS"
+        }
+      ];
+      
+      setCandidates([...importedCandidates, ...candidates]);
+      setImportSheetOpen(false);
+      toast({
+        title: "Import successful",
+        description: `Successfully imported ${importedCandidates.length} candidates from ${selectedJobPortal}.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Import failed",
+        description: "An error occurred while importing candidates.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  // Handle exporting candidates to job portals
+  const handleExportCandidates = async () => {
+    if (selectedCandidates.length === 0) {
+      toast({
+        title: "No candidates selected",
+        description: "Please select candidates to export.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // In a real app, we would call an API here
+      // For now, simulate an API call with a delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Export successful",
+        description: `Successfully exported ${selectedCandidates.length} candidates to third-party job portals.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "An error occurred while exporting candidates.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Layout title="Candidates">
       <div className="space-y-6">
@@ -300,7 +403,7 @@ const CandidatesPage = () => {
               onChange={handleSearchChange}
             />
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-1">
@@ -339,6 +442,45 @@ const CandidatesPage = () => {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+            
+            {/* Job Portal Integration */}
+            <Sheet open={importSheetOpen} onOpenChange={setImportSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="gap-1">
+                  Import
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="sm:max-w-md">
+                <SheetHeader>
+                  <SheetTitle>Import Candidates</SheetTitle>
+                </SheetHeader>
+                <div className="py-6 space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium">Select Job Portal</h3>
+                    <div className="grid grid-cols-1 gap-2">
+                      {["LinkedIn", "Indeed", "Glassdoor", "Monster"].map((portal) => (
+                        <Button
+                          key={portal}
+                          variant={selectedJobPortal === portal ? "default" : "outline"}
+                          className="justify-start"
+                          onClick={() => setSelectedJobPortal(portal)}
+                        >
+                          {portal}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <Button 
+                    className="w-full bg-ats-600 hover:bg-ats-700"
+                    disabled={!selectedJobPortal || isImporting}
+                    onClick={handleImportCandidates}
+                  >
+                    {isImporting ? "Importing..." : "Import Candidates"}
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+            
             <RBACWrapper requiredPermission={{ action: 'create', subject: 'candidates' }}>
               <Button 
                 className="gap-1 bg-ats-600 hover:bg-ats-700"
@@ -355,6 +497,13 @@ const CandidatesPage = () => {
           <div className="flex items-center justify-between bg-muted/50 px-4 py-2 rounded-md">
             <span className="text-sm font-medium">{selectedCandidates.length} selected</span>
             <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleExportCandidates}
+              >
+                Export Selected
+              </Button>
               <RBACWrapper requiredPermission={{ action: 'delete', subject: 'candidates' }}>
                 <Button 
                   variant="outline" 
