@@ -1,5 +1,6 @@
 
-import { Candidate } from "@/types";
+import { useState } from 'react';
+import { Candidate, APPLICATION_STAGES } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +13,16 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Calendar, Download, Mail, Phone, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ApplicationStageSelect } from "./ApplicationStageSelect";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface CandidateDetailsProps {
   candidate: Candidate;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEdit?: () => void;
+  onStageChange?: (candidateId: string, stageId: string) => void;
 }
 
 export function CandidateDetails({
@@ -25,7 +30,16 @@ export function CandidateDetails({
   open,
   onOpenChange,
   onEdit,
+  onStageChange,
 }: CandidateDetailsProps) {
+  const { hasPermission } = useAuth();
+  const { toast } = useToast();
+  const [currentStage, setCurrentStage] = useState(
+    candidate.applicationStage || APPLICATION_STAGES[0]
+  );
+
+  const canUpdateCandidates = hasPermission('update', 'candidates');
+  
   const getStatusColor = (status: Candidate["status"]) => {
     switch (status) {
       case "new":
@@ -38,6 +52,19 @@ export function CandidateDetails({
         return "bg-green-50 text-green-600 hover:bg-green-100";
       case "rejected":
         return "bg-gray-50 text-gray-600 hover:bg-gray-100";
+    }
+  };
+
+  const handleStageChange = (stage: typeof APPLICATION_STAGES[0]) => {
+    setCurrentStage(stage);
+    
+    if (onStageChange) {
+      onStageChange(candidate.id, stage.id);
+      
+      toast({
+        title: "Stage updated",
+        description: `Candidate moved to "${stage.name}" stage.`,
+      });
     }
   };
 
@@ -67,6 +94,21 @@ export function CandidateDetails({
         </DialogHeader>
         
         <div className="space-y-6 py-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">Application Stage</h3>
+              <ApplicationStageSelect 
+                currentStage={currentStage}
+                onStageChange={handleStageChange}
+                disabled={!canUpdateCandidates}
+              />
+            </div>
+            
+            {currentStage?.description && (
+              <p className="text-sm text-muted-foreground">{currentStage.description}</p>
+            )}
+          </div>
+          
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
@@ -122,7 +164,7 @@ export function CandidateDetails({
               </Button>
             )}
           </div>
-          {onEdit && (
+          {onEdit && canUpdateCandidates && (
             <Button onClick={onEdit} size="sm" className="gap-1 bg-ats-600 hover:bg-ats-700">
               <Pencil className="h-4 w-4" />
               Edit Candidate

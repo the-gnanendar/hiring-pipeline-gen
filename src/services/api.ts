@@ -1,8 +1,13 @@
-
-import { Job, Candidate, Interview } from "@/types";
+import { Job, Candidate, Interview, APPLICATION_STAGES } from "@/types";
 
 // Base API URL - replace with your actual Laravel API endpoint
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
+// Helper function to get auth token
+const getAuthToken = (): string | null => {
+  const user = localStorage.getItem('currentUser');
+  return user ? JSON.parse(user).id : null;
+};
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
@@ -13,52 +18,60 @@ const handleResponse = async (response: Response) => {
   return response.json();
 };
 
+// Helper function to create request options with authentication
+const createRequestOptions = (method: string, body?: any): RequestInit => {
+  const token = getAuthToken();
+  const options: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    },
+    credentials: 'include',
+  };
+  
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+  
+  return options;
+};
+
 // Job-related API calls
 export const jobsApi = {
   getAll: async (): Promise<Job[]> => {
-    const response = await fetch(`${API_URL}/jobs`);
+    const options = createRequestOptions('GET');
+    const response = await fetch(`${API_URL}/jobs`, options);
     return handleResponse(response);
   },
   
   getById: async (id: string): Promise<Job> => {
-    const response = await fetch(`${API_URL}/jobs/${id}`);
+    const options = createRequestOptions('GET');
+    const response = await fetch(`${API_URL}/jobs/${id}`, options);
     return handleResponse(response);
   },
   
   create: async (job: Omit<Job, 'id' | 'applicants' | 'postedDate'>): Promise<Job> => {
-    const response = await fetch(`${API_URL}/jobs`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(job),
-      credentials: 'include',
-    });
+    const options = createRequestOptions('POST', job);
+    const response = await fetch(`${API_URL}/jobs`, options);
     return handleResponse(response);
   },
   
   update: async (id: string, job: Partial<Job>): Promise<Job> => {
-    const response = await fetch(`${API_URL}/jobs/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(job),
-      credentials: 'include',
-    });
+    const options = createRequestOptions('PUT', job);
+    const response = await fetch(`${API_URL}/jobs/${id}`, options);
     return handleResponse(response);
   },
   
   delete: async (id: string): Promise<void> => {
-    const response = await fetch(`${API_URL}/jobs/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
+    const options = createRequestOptions('DELETE');
+    const response = await fetch(`${API_URL}/jobs/${id}`, options);
     return handleResponse(response);
   },
   
   searchJobs: async (query: string): Promise<Job[]> => {
-    const response = await fetch(`${API_URL}/jobs/search?q=${encodeURIComponent(query)}`);
+    const options = createRequestOptions('GET');
+    const response = await fetch(`${API_URL}/jobs/search?q=${encodeURIComponent(query)}`, options);
     return handleResponse(response);
   },
 };
@@ -66,44 +79,64 @@ export const jobsApi = {
 // Candidate-related API calls
 export const candidatesApi = {
   getAll: async (): Promise<Candidate[]> => {
-    const response = await fetch(`${API_URL}/candidates`);
-    return handleResponse(response);
+    const options = createRequestOptions('GET');
+    const response = await fetch(`${API_URL}/candidates`, options);
+    
+    // Mock implementation for demo purposes
+    const mockCandidates = [
+      {
+        id: "1",
+        name: "Alex Morgan",
+        email: "alex.morgan@example.com",
+        position: "Frontend Developer",
+        status: "interview" as const,
+        date: "June 3, 2025",
+        initials: "AM",
+        applicationStage: APPLICATION_STAGES[4] // First Interview
+      },
+      // ... other candidates
+    ];
+    
+    try {
+      return await handleResponse(response);
+    } catch (error) {
+      console.log("Using mock data for candidates");
+      return mockCandidates;
+    }
   },
   
   getById: async (id: string): Promise<Candidate> => {
-    const response = await fetch(`${API_URL}/candidates/${id}`);
+    const options = createRequestOptions('GET');
+    const response = await fetch(`${API_URL}/candidates/${id}`, options);
     return handleResponse(response);
   },
   
   create: async (candidate: Omit<Candidate, 'id'>): Promise<Candidate> => {
-    const response = await fetch(`${API_URL}/candidates`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(candidate),
-      credentials: 'include',
-    });
+    const options = createRequestOptions('POST', candidate);
+    const response = await fetch(`${API_URL}/candidates`, options);
     return handleResponse(response);
   },
   
   update: async (id: string, candidate: Partial<Candidate>): Promise<Candidate> => {
-    const response = await fetch(`${API_URL}/candidates/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(candidate),
-      credentials: 'include',
-    });
+    const options = createRequestOptions('PUT', candidate);
+    const response = await fetch(`${API_URL}/candidates/${id}`, options);
+    return handleResponse(response);
+  },
+  
+  updateStage: async (id: string, stageId: string): Promise<Candidate> => {
+    const stage = APPLICATION_STAGES.find(s => s.id === stageId);
+    if (!stage) {
+      throw new Error('Invalid stage ID');
+    }
+    
+    const options = createRequestOptions('PATCH', { applicationStage: stage });
+    const response = await fetch(`${API_URL}/candidates/${id}/stage`, options);
     return handleResponse(response);
   },
   
   delete: async (id: string): Promise<void> => {
-    const response = await fetch(`${API_URL}/candidates/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
+    const options = createRequestOptions('DELETE');
+    const response = await fetch(`${API_URL}/candidates/${id}`, options);
     return handleResponse(response);
   },
 };
@@ -111,44 +144,32 @@ export const candidatesApi = {
 // Interview-related API calls
 export const interviewsApi = {
   getAll: async (): Promise<Interview[]> => {
-    const response = await fetch(`${API_URL}/interviews`);
+    const options = createRequestOptions('GET');
+    const response = await fetch(`${API_URL}/interviews`, options);
     return handleResponse(response);
   },
   
   getById: async (id: string): Promise<Interview> => {
-    const response = await fetch(`${API_URL}/interviews/${id}`);
+    const options = createRequestOptions('GET');
+    const response = await fetch(`${API_URL}/interviews/${id}`, options);
     return handleResponse(response);
   },
   
   create: async (interview: Omit<Interview, 'id'>): Promise<Interview> => {
-    const response = await fetch(`${API_URL}/interviews`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(interview),
-      credentials: 'include',
-    });
+    const options = createRequestOptions('POST', interview);
+    const response = await fetch(`${API_URL}/interviews`, options);
     return handleResponse(response);
   },
   
   update: async (id: string, interview: Partial<Interview>): Promise<Interview> => {
-    const response = await fetch(`${API_URL}/interviews/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(interview),
-      credentials: 'include',
-    });
+    const options = createRequestOptions('PUT', interview);
+    const response = await fetch(`${API_URL}/interviews/${id}`, options);
     return handleResponse(response);
   },
   
   delete: async (id: string): Promise<void> => {
-    const response = await fetch(`${API_URL}/interviews/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
+    const options = createRequestOptions('DELETE');
+    const response = await fetch(`${API_URL}/interviews/${id}`, options);
     return handleResponse(response);
   },
 };
@@ -156,15 +177,35 @@ export const interviewsApi = {
 // Third-party job portal integration API
 export const jobPortalsApi = {
   importJobs: async (source: string): Promise<Job[]> => {
-    const response = await fetch(`${API_URL}/job-portals/import?source=${source}`, {
-      method: 'POST',
-      credentials: 'include',
-    });
+    const options = createRequestOptions('POST');
+    const response = await fetch(`${API_URL}/job-portals/import?source=${source}`, options);
     return handleResponse(response);
   },
   
   getSources: async (): Promise<string[]> => {
-    const response = await fetch(`${API_URL}/job-portals/sources`);
+    const options = createRequestOptions('GET');
+    const response = await fetch(`${API_URL}/job-portals/sources`, options);
+    return handleResponse(response);
+  },
+};
+
+// Authentication API
+export const authApi = {
+  login: async (email: string, password: string) => {
+    const options = createRequestOptions('POST', { email, password });
+    const response = await fetch(`${API_URL}/auth/login`, options);
+    return handleResponse(response);
+  },
+  
+  logout: async () => {
+    const options = createRequestOptions('POST');
+    const response = await fetch(`${API_URL}/auth/logout`, options);
+    return handleResponse(response);
+  },
+  
+  getCurrentUser: async () => {
+    const options = createRequestOptions('GET');
+    const response = await fetch(`${API_URL}/auth/me`, options);
     return handleResponse(response);
   },
 };

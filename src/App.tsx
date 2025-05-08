@@ -1,35 +1,63 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Candidates from "./pages/Candidates";
-import Jobs from "./pages/Jobs";
-import Interviews from "./pages/Interviews";
-import AIAssistant from "./pages/AIAssistant";
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { Toaster } from './components/ui/toaster';
 
-const queryClient = new QueryClient();
+// Pages
+import IndexPage from './pages/Index';
+import CandidatesPage from './pages/Candidates';
+import JobsPage from './pages/Jobs';
+import InterviewsPage from './pages/Interviews';
+import AIAssistantPage from './pages/AIAssistant';
+import LoginPage from './pages/Login';
+import UnauthorizedPage from './pages/Unauthorized';
+import NotFoundPage from './pages/NotFound';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+function App() {
+  return (
+    <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/candidates" element={<Candidates />} />
-          <Route path="/jobs" element={<Jobs />} />
-          <Route path="/interviews" element={<Interviews />} />
-          <Route path="/ai-assistant" element={<AIAssistant />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          
+          <Route path="/" element={
+            <ProtectedRoute>
+              <IndexPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/candidates" element={
+            <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'candidates' }]}>
+              <CandidatesPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/jobs" element={
+            <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'jobs' }]}>
+              <JobsPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/interviews" element={
+            <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'interviews' }]}>
+              <InterviewsPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/ai-assistant" element={
+            <ProtectedRoute>
+              <AIAssistantPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        <Toaster />
       </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </AuthProvider>
+  );
+}
 
 export default App;
