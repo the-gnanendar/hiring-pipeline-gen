@@ -69,6 +69,18 @@ export const jobsApi = {
     return handleResponse(response);
   },
   
+  bulkImport: async (jobs: Partial<Job>[]): Promise<Job[]> => {
+    const options = createRequestOptions('POST', { jobs });
+    const response = await fetch(`${API_URL}/jobs/bulk-import`, options);
+    return handleResponse(response);
+  },
+  
+  bulkExport: async (jobIds: string[]): Promise<string> => {
+    const options = createRequestOptions('POST', { jobIds });
+    const response = await fetch(`${API_URL}/jobs/bulk-export`, options);
+    return handleResponse(response);
+  },
+  
   searchJobs: async (query: string): Promise<Job[]> => {
     const options = createRequestOptions('GET');
     const response = await fetch(`${API_URL}/jobs/search?q=${encodeURIComponent(query)}`, options);
@@ -120,6 +132,18 @@ export const candidatesApi = {
   update: async (id: string, candidate: Partial<Candidate>): Promise<Candidate> => {
     const options = createRequestOptions('PUT', candidate);
     const response = await fetch(`${API_URL}/candidates/${id}`, options);
+    return handleResponse(response);
+  },
+  
+  bulkImport: async (candidates: Partial<Candidate>[]): Promise<Candidate[]> => {
+    const options = createRequestOptions('POST', { candidates });
+    const response = await fetch(`${API_URL}/candidates/bulk-import`, options);
+    return handleResponse(response);
+  },
+  
+  bulkExport: async (candidateIds: string[]): Promise<string> => {
+    const options = createRequestOptions('POST', { candidateIds });
+    const response = await fetch(`${API_URL}/candidates/bulk-export`, options);
     return handleResponse(response);
   },
   
@@ -185,6 +209,24 @@ export const jobPortalsApi = {
   getSources: async (): Promise<string[]> => {
     const options = createRequestOptions('GET');
     const response = await fetch(`${API_URL}/job-portals/sources`, options);
+    return handleResponse(response);
+  },
+  
+  exportJobs: async (jobIds: string[], destination: string): Promise<boolean> => {
+    const options = createRequestOptions('POST', { jobIds, destination });
+    const response = await fetch(`${API_URL}/job-portals/export-jobs`, options);
+    return handleResponse(response);
+  },
+  
+  importCandidates: async (source: string): Promise<Candidate[]> => {
+    const options = createRequestOptions('POST', { source });
+    const response = await fetch(`${API_URL}/job-portals/import-candidates`, options);
+    return handleResponse(response);
+  },
+  
+  exportCandidates: async (candidateIds: string[], destination: string): Promise<boolean> => {
+    const options = createRequestOptions('POST', { candidateIds, destination });
+    const response = await fetch(`${API_URL}/job-portals/export-candidates`, options);
     return handleResponse(response);
   },
 };
