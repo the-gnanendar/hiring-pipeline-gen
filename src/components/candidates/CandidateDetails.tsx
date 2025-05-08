@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { ApplicationStageSelect } from "./ApplicationStageSelect";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { RBACWrapper } from "@/components/layout/RBACWrapper";
 
 interface CandidateDetailsProps {
   candidate: Candidate;
@@ -37,8 +38,6 @@ export function CandidateDetails({
   const [currentStage, setCurrentStage] = useState(
     candidate.applicationStage || APPLICATION_STAGES[0]
   );
-
-  const canUpdateCandidates = hasPermission('update', 'candidates');
   
   const getStatusColor = (status: Candidate["status"]) => {
     switch (status) {
@@ -97,11 +96,12 @@ export function CandidateDetails({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Application Stage</h3>
-              <ApplicationStageSelect 
-                currentStage={currentStage}
-                onStageChange={handleStageChange}
-                disabled={!canUpdateCandidates}
-              />
+              <RBACWrapper requiredPermission={{ action: 'update', subject: 'candidates' }}>
+                <ApplicationStageSelect 
+                  currentStage={currentStage}
+                  onStageChange={handleStageChange}
+                />
+              </RBACWrapper>
             </div>
             
             {currentStage?.description && (
@@ -164,11 +164,13 @@ export function CandidateDetails({
               </Button>
             )}
           </div>
-          {onEdit && canUpdateCandidates && (
-            <Button onClick={onEdit} size="sm" className="gap-1 bg-ats-600 hover:bg-ats-700">
-              <Pencil className="h-4 w-4" />
-              Edit Candidate
-            </Button>
+          {onEdit && (
+            <RBACWrapper requiredPermission={{ action: 'update', subject: 'candidates' }}>
+              <Button onClick={onEdit} size="sm" className="gap-1 bg-ats-600 hover:bg-ats-700">
+                <Pencil className="h-4 w-4" />
+                Edit Candidate
+              </Button>
+            </RBACWrapper>
           )}
         </DialogFooter>
       </DialogContent>

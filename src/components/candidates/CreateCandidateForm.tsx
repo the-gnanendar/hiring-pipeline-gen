@@ -52,12 +52,16 @@ interface CreateCandidateFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit?: (data: Omit<Candidate, "id" | "date" | "initials">) => void;
+  initialData?: Partial<Candidate>;
+  mode?: "create" | "edit";
 }
 
 export function CreateCandidateForm({
   open,
   onOpenChange,
   onSubmit,
+  initialData,
+  mode = "create",
 }: CreateCandidateFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,14 +69,14 @@ export function CreateCandidateForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      position: "",
-      status: "new",
-      experience: undefined,
-      education: "",
-      resume: "",
+      name: initialData?.name || "",
+      email: initialData?.email || "",
+      phone: initialData?.phone || "",
+      position: initialData?.position || "",
+      status: initialData?.status || "new",
+      experience: initialData?.experience,
+      education: initialData?.education?.[0] || "",
+      resume: initialData?.resume || "",
     },
   });
 
@@ -100,16 +104,20 @@ export function CreateCandidateForm({
       }
       
       toast({
-        title: "Candidate added",
-        description: "The candidate has been successfully added.",
+        title: mode === "create" ? "Candidate added" : "Candidate updated",
+        description: mode === "create" 
+          ? "The candidate has been successfully added." 
+          : "The candidate has been successfully updated.",
       });
       
-      form.reset();
+      if (mode === "create") {
+        form.reset();
+      }
       onOpenChange(false);
     } catch (error) {
       toast({
         title: "Error",
-        description: "An error occurred while adding the candidate.",
+        description: `An error occurred while ${mode === "create" ? "adding" : "updating"} the candidate.`,
         variant: "destructive",
       });
     } finally {
@@ -121,7 +129,9 @@ export function CreateCandidateForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Add New Candidate</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {mode === "create" ? "Add New Candidate" : "Edit Candidate"}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -273,7 +283,9 @@ export function CreateCandidateForm({
                 disabled={isSubmitting}
                 className="bg-ats-600 hover:bg-ats-700"
               >
-                {isSubmitting ? "Adding..." : "Add Candidate"}
+                {isSubmitting 
+                  ? (mode === "create" ? "Adding..." : "Updating...") 
+                  : (mode === "create" ? "Add Candidate" : "Update Candidate")}
               </Button>
             </DialogFooter>
           </form>

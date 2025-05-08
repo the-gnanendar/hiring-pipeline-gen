@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, Plus, Trash, CheckCircle, X } from "lucide-react";
+import { Search, Filter, Plus, Trash, CheckCircle, X, Pencil } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -39,6 +38,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { RBACWrapper } from "@/components/layout/RBACWrapper";
 
 // Initial candidates data
 const initialCandidates: Candidate[] = [
@@ -144,6 +144,8 @@ const CandidatesPage = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [candidateToDelete, setCandidateToDelete] = useState<string | null>(null);
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [candidateToEdit, setCandidateToEdit] = useState<Candidate | null>(null);
 
   // Filter candidates based on search query and status
   const filteredCandidates = candidates.filter((candidate) => {
@@ -220,6 +222,33 @@ const CandidatesPage = () => {
     });
   };
 
+  // Handle editing a candidate
+  const handleEditCandidate = (candidate: Candidate) => {
+    setCandidateToEdit(candidate);
+    setEditDialogOpen(true);
+  };
+
+  // Handle updating a candidate
+  const handleUpdateCandidate = (candidateData: Omit<Candidate, "id" | "date" | "initials">) => {
+    if (candidateToEdit) {
+      setCandidates(candidates.map(candidate => 
+        candidate.id === candidateToEdit.id 
+          ? { 
+              ...candidate, 
+              ...candidateData,
+            }
+          : candidate
+      ));
+      
+      toast({
+        title: "Candidate updated",
+        description: `${candidateData.name} has been updated successfully.`,
+      });
+      
+      setCandidateToEdit(null);
+    }
+  };
+
   // Handle deleting a candidate
   const handleDeleteCandidate = (candidateId: string) => {
     setCandidateToDelete(candidateId);
@@ -255,20 +284,6 @@ const CandidatesPage = () => {
     toast({
       title: `${selectedCandidates.length} candidates deleted`,
       description: "The selected candidates have been deleted successfully.",
-    });
-  };
-
-  // Update candidate status
-  const handleUpdateStatus = (candidateId: string, newStatus: Candidate["status"]) => {
-    setCandidates(candidates.map(candidate => 
-      candidate.id === candidateId 
-        ? { ...candidate, status: newStatus } 
-        : candidate
-    ));
-    
-    toast({
-      title: "Status updated",
-      description: `Candidate status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}.`,
     });
   };
 
@@ -324,13 +339,15 @@ const CandidatesPage = () => {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button 
-              className="gap-1 bg-ats-600 hover:bg-ats-700"
-              onClick={() => setCreateDialogOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Add Candidate
-            </Button>
+            <RBACWrapper requiredPermission={{ action: 'create', subject: 'candidates' }}>
+              <Button 
+                className="gap-1 bg-ats-600 hover:bg-ats-700"
+                onClick={() => setCreateDialogOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Add Candidate
+              </Button>
+            </RBACWrapper>
           </div>
         </div>
         
@@ -338,14 +355,16 @@ const CandidatesPage = () => {
           <div className="flex items-center justify-between bg-muted/50 px-4 py-2 rounded-md">
             <span className="text-sm font-medium">{selectedCandidates.length} selected</span>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={handleBulkDelete}
-              >
-                <Trash className="h-4 w-4 mr-1" /> Delete Selected
-              </Button>
+              <RBACWrapper requiredPermission={{ action: 'delete', subject: 'candidates' }}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={handleBulkDelete}
+                >
+                  <Trash className="h-4 w-4 mr-1" /> Delete Selected
+                </Button>
+              </RBACWrapper>
               <Button 
                 variant="ghost" 
                 size="sm"
@@ -360,7 +379,7 @@ const CandidatesPage = () => {
           </div>
         )}
         
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -377,7 +396,7 @@ const CandidatesPage = () => {
                 <TableHead className="hidden sm:table-cell">Position</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden md:table-cell">Applied Date</TableHead>
-                <TableHead className="w-20"></TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -455,14 +474,28 @@ const CandidatesPage = () => {
                       {candidate.date}
                     </TableCell>
                     <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-muted-foreground hover:text-destructive"
-                        onClick={() => handleDeleteCandidate(candidate.id)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center space-x-2">
+                        <RBACWrapper requiredPermission={{ action: 'update', subject: 'candidates' }}>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-muted-foreground hover:text-primary"
+                            onClick={() => handleEditCandidate(candidate)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </RBACWrapper>
+                        <RBACWrapper requiredPermission={{ action: 'delete', subject: 'candidates' }}>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteCandidate(candidate.id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </RBACWrapper>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -477,7 +510,19 @@ const CandidatesPage = () => {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSubmit={handleAddCandidate}
+        mode="create"
       />
+      
+      {/* Edit Candidate Dialog */}
+      {candidateToEdit && (
+        <CreateCandidateForm
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSubmit={handleUpdateCandidate}
+          initialData={candidateToEdit}
+          mode="edit"
+        />
+      )}
       
       {/* Candidate Details Dialog */}
       {selectedCandidate && (
@@ -487,11 +532,7 @@ const CandidatesPage = () => {
           onOpenChange={setDetailsDialogOpen}
           onEdit={() => {
             setDetailsDialogOpen(false);
-            // In a real app, we would open an edit form here
-            toast({
-              title: "Edit mode",
-              description: "Candidate editing functionality will be implemented in the next phase.",
-            });
+            handleEditCandidate(selectedCandidate);
           }}
         />
       )}
