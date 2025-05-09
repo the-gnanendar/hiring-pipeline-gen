@@ -17,7 +17,7 @@ export const BulkImportCandidates: React.FC<BulkImportCandidatesProps> = ({ onSu
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleImportCandidates = async (data: any[]) => {
+  const handleImportCandidates = async (data: any[]): Promise<void> => {
     setIsLoading(true);
     try {
       await candidatesApi.bulkImport(data);
@@ -26,7 +26,6 @@ export const BulkImportCandidates: React.FC<BulkImportCandidatesProps> = ({ onSu
         description: `Successfully imported ${data.length} candidates.`,
       });
       onSuccess();
-      return true;
     } catch (error) {
       console.error("Error importing candidates:", error);
       toast({

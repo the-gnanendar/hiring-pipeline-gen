@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -108,11 +107,6 @@ export const BulkImportDialog: React.FC<BulkImportDialogProps> = ({
 
       // Send to API
       await onImport(jsonData);
-      
-      toast({
-        title: "Import successful",
-        description: `${jsonData.length} ${entityName} records were successfully imported.`
-      });
       
       setFile(null);
       onOpenChange(false);

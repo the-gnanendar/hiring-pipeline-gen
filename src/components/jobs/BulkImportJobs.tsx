@@ -17,7 +17,7 @@ export const BulkImportJobs: React.FC<BulkImportJobsProps> = ({ onSuccess }) => 
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleImportJobs = async (data: any[]) => {
+  const handleImportJobs = async (data: any[]): Promise<void> => {
     setIsLoading(true);
     try {
       await jobsApi.bulkImport(data);
@@ -26,7 +26,6 @@ export const BulkImportJobs: React.FC<BulkImportJobsProps> = ({ onSuccess }) => 
         description: `Successfully imported ${data.length} jobs.`,
       });
       onSuccess();
-      return true;
     } catch (error) {
       console.error("Error importing jobs:", error);
       toast({
