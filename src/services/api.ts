@@ -1,6 +1,7 @@
+
 import { Job, Candidate, Interview, APPLICATION_STAGES } from "@/types";
 
-// Base API URL - replace with your actual Laravel API endpoint
+// Base API URL - replace with your actual Node.js API endpoint
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Helper function to get auth token
