@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Role, Permission, RolePermissions } from '@/types';
 
@@ -93,6 +92,7 @@ interface AuthContextType {
   hasPermission: (action: Permission['action'], subject: Permission['subject']) => boolean;
   users: User[];
   isAuthenticated: boolean;
+  rolePermissions: RolePermissions;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -144,7 +144,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout, 
         hasPermission, 
         users: mockUsers,
-        isAuthenticated
+        isAuthenticated,
+        rolePermissions
       }}
     >
       {children}

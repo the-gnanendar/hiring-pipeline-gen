@@ -1,18 +1,27 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Calendar, FileText, FolderPlus, Search, User, Users } from 'lucide-react';
-
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: <FileText className="h-5 w-5" /> },
-  { name: 'Candidates', href: '/candidates', icon: <Users className="h-5 w-5" /> },
-  { name: 'Jobs', href: '/jobs', icon: <FolderPlus className="h-5 w-5" /> },
-  { name: 'Interviews', href: '/interviews', icon: <Calendar className="h-5 w-5" /> },
-  { name: 'AI Assistant', href: '/ai-assistant', icon: <Search className="h-5 w-5" /> },
-];
+import { Calendar, FileText, FolderPlus, Search, User, Users, Settings, Shield } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function Sidebar() {
   const location = useLocation();
+  const { hasPermission } = useAuth();
+  
+  // Define navigation items
+  const navigation = [
+    { name: 'Dashboard', href: '/', icon: <FileText className="h-5 w-5" /> },
+    { name: 'Candidates', href: '/candidates', icon: <Users className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'candidates' as const } },
+    { name: 'Jobs', href: '/jobs', icon: <FolderPlus className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'jobs' as const } },
+    { name: 'Interviews', href: '/interviews', icon: <Calendar className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'interviews' as const } },
+    { name: 'AI Assistant', href: '/ai-assistant', icon: <Search className="h-5 w-5" /> },
+  ];
+  
+  // Define user management navigation items
+  const userManagementNav = [
+    { name: 'User Management', href: '/users', icon: <User className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'users' as const } },
+    { name: 'Role Permissions', href: '/role-permissions', icon: <Shield className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'users' as const } },
+  ];
   
   return (
     <div className="flex h-full flex-col border-r bg-white">
@@ -26,6 +35,10 @@ export function Sidebar() {
         <ul className="space-y-1">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
+            const showItem = !item.permission || hasPermission(item.permission.action, item.permission.subject);
+            
+            if (!showItem) return null;
+            
             return (
               <li key={item.name}>
                 <Link
@@ -46,6 +59,45 @@ export function Sidebar() {
             );
           })}
         </ul>
+
+        {/* User Management Section */}
+        {userManagementNav.some(item => 
+          !item.permission || hasPermission(item.permission.action, item.permission.subject)
+        ) && (
+          <>
+            <div className="my-3 px-3">
+              <div className="border-t" />
+              <h3 className="mt-3 text-xs font-semibold text-gray-500">USER MANAGEMENT</h3>
+            </div>
+            <ul className="space-y-1">
+              {userManagementNav.map((item) => {
+                const isActive = location.pathname === item.href;
+                const showItem = !item.permission || hasPermission(item.permission.action, item.permission.subject);
+                
+                if (!showItem) return null;
+                
+                return (
+                  <li key={item.name}>
+                    <Link
+                      to={item.href}
+                      className={cn(
+                        "group flex items-center rounded-md px-3 py-2 text-sm font-medium",
+                        isActive
+                          ? "bg-ats-50 text-ats-700"
+                          : "text-gray-700 hover:bg-ats-50 hover:text-ats-700"
+                      )}
+                    >
+                      <div className={cn("mr-3", isActive ? "text-ats-600" : "text-gray-400 group-hover:text-ats-600")}>
+                        {item.icon}
+                      </div>
+                      {item.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
       </nav>
       <div className="border-t p-4">
         <div className="flex items-center gap-3">

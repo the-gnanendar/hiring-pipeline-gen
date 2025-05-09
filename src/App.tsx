@@ -9,6 +9,8 @@ import CandidatesPage from './pages/Candidates';
 import JobsPage from './pages/Jobs';
 import InterviewsPage from './pages/Interviews';
 import AIAssistantPage from './pages/AIAssistant';
+import UserManagementPage from './pages/UserManagement';
+import RolePermissionsPage from './pages/RolePermissions';
 import LoginPage from './pages/Login';
 import UnauthorizedPage from './pages/Unauthorized';
 import NotFoundPage from './pages/NotFound';
@@ -41,6 +43,18 @@ function App() {
         <Route path="/interviews" element={
           <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'interviews' }]}>
             <InterviewsPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/users" element={
+          <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'users' }]}>
+            <UserManagementPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/role-permissions" element={
+          <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'users' }]}>
+            <RolePermissionsPage />
           </ProtectedRoute>
         } />
         
