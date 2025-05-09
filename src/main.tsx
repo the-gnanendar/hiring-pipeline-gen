@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx'
 import './index.css'
-import { ThemeProvider } from "./providers/theme-provider";
+import { ThemeProvider } from "./components/ui/theme-provider";
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryProvider } from '@/lib/query-provider';

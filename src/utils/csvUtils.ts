@@ -32,9 +32,10 @@ export const downloadCSV = (csvContent: string, filename: string): void => {
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   
-  if (navigator.msSaveBlob) {
+  // TypeScript type guard for IE/Edge
+  if ('msSaveBlob' in navigator) {
     // For IE and Edge browsers
-    navigator.msSaveBlob(blob, filename);
+    (navigator as any).msSaveBlob(blob, filename);
   } else {
     // For other browsers
     const url = URL.createObjectURL(blob);

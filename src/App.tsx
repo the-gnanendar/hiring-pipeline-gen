@@ -1,6 +1,5 @@
 
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Toaster } from './components/ui/toaster';
 
@@ -16,47 +15,45 @@ import NotFoundPage from './pages/NotFound';
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
-          
-          <Route path="/" element={
-            <ProtectedRoute>
-              <IndexPage />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/candidates" element={
-            <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'candidates' }]}>
-              <CandidatesPage />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/jobs" element={
-            <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'jobs' }]}>
-              <JobsPage />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/interviews" element={
-            <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'interviews' }]}>
-              <InterviewsPage />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/ai-assistant" element={
-            <ProtectedRoute>
-              <AIAssistantPage />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-        <Toaster />
-      </BrowserRouter>
-    </AuthProvider>
+    <>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        
+        <Route path="/" element={
+          <ProtectedRoute>
+            <IndexPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/candidates" element={
+          <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'candidates' }]}>
+            <CandidatesPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/jobs" element={
+          <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'jobs' }]}>
+            <JobsPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/interviews" element={
+          <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'interviews' }]}>
+            <InterviewsPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/ai-assistant" element={
+          <ProtectedRoute>
+            <AIAssistantPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+      <Toaster />
+    </>
   );
 }
 

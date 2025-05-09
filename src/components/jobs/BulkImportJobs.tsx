@@ -5,7 +5,7 @@ import { jobsApi } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import { BulkImportDialog } from "@/components/shared/BulkImportDialog";
 import { sampleJobsCSV } from "@/utils/csvUtils";
-import { FileTextIcon, DownloadIcon, UploadIcon } from "lucide-react";
+import { UploadIcon } from "lucide-react";
 import { RBACWrapper } from "@/components/layout/RBACWrapper";
 
 interface BulkImportJobsProps {
@@ -14,15 +14,29 @@ interface BulkImportJobsProps {
 
 export const BulkImportJobs: React.FC<BulkImportJobsProps> = ({ onSuccess }) => {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleImportJobs = async (data: any[]) => {
+    setIsLoading(true);
     try {
       await jobsApi.bulkImport(data);
+      toast({
+        title: "Import successful",
+        description: `Successfully imported ${data.length} jobs.`,
+      });
       onSuccess();
+      return true;
     } catch (error) {
       console.error("Error importing jobs:", error);
+      toast({
+        title: "Import failed",
+        description: "Failed to import jobs. Please check your CSV format.",
+        variant: "destructive",
+      });
       throw new Error("Failed to import jobs. Please check your CSV format.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -33,6 +47,7 @@ export const BulkImportJobs: React.FC<BulkImportJobsProps> = ({ onSuccess }) => 
           variant="outline" 
           onClick={() => setOpen(true)}
           className="gap-1"
+          disabled={isLoading}
         >
           <UploadIcon className="h-4 w-4" /> Bulk Import
         </Button>
