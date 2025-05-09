@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { RBACWrapper } from "@/components/layout/RBACWrapper";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { BulkImportCandidates } from "@/components/candidates/BulkImportCandidates";
+import { ExportCandidates } from "@/components/candidates/ExportCandidates";
 
 // Initial candidates data
 const initialCandidates: Candidate[] = [
@@ -443,6 +445,19 @@ const CandidatesPage = () => {
               </DropdownMenuContent>
             </DropdownMenu>
             
+            <BulkImportCandidates onSuccess={() => {
+              // Refresh candidates list
+              toast({
+                title: "Import successful",
+                description: "Candidates list has been refreshed.",
+              });
+            }} />
+            
+            <ExportCandidates 
+              candidates={candidates} 
+              selectedOnly={false}
+            />
+            
             {/* Job Portal Integration */}
             <Sheet open={importSheetOpen} onOpenChange={setImportSheetOpen}>
               <SheetTrigger asChild>
@@ -497,13 +512,11 @@ const CandidatesPage = () => {
           <div className="flex items-center justify-between bg-muted/50 px-4 py-2 rounded-md">
             <span className="text-sm font-medium">{selectedCandidates.length} selected</span>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleExportCandidates}
-              >
-                Export Selected
-              </Button>
+              <ExportCandidates 
+                candidates={candidates}
+                selectedOnly={true}
+                selectedCandidates={selectedCandidates}
+              />
               <RBACWrapper requiredPermission={{ action: 'delete', subject: 'candidates' }}>
                 <Button 
                   variant="outline" 

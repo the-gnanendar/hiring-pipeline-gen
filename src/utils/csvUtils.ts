@@ -48,6 +48,45 @@ export const downloadCSV = (csvContent: string, filename: string): void => {
   }
 };
 
+// Export data from Jobs to CSV
+export const exportJobsToCSV = (jobs: any[], filename: string = 'jobs_export.csv'): void => {
+  // Filter out properties we don't want to export
+  const cleanedJobs = jobs.map(job => {
+    const { 
+      title, department, location, type, status, 
+      description, requirements, responsibilities, salary 
+    } = job;
+    
+    return { 
+      title, department, location, type, status,
+      description: description || '',
+      requirements: Array.isArray(requirements) ? requirements.join('; ') : '',
+      responsibilities: Array.isArray(responsibilities) ? responsibilities.join('; ') : '',
+      salary_min: salary?.min || '',
+      salary_max: salary?.max || '',
+      salary_currency: salary?.currency || ''
+    };
+  });
+  
+  const csv = objectsToCSV(cleanedJobs);
+  downloadCSV(csv, filename);
+};
+
+// Export data from Candidates to CSV
+export const exportCandidatesToCSV = (candidates: any[], filename: string = 'candidates_export.csv'): void => {
+  // Filter out properties we don't want to export
+  const cleanedCandidates = candidates.map(candidate => {
+    const { 
+      name, email, position, status, date
+    } = candidate;
+    
+    return { name, email, position, status, applied_date: date };
+  });
+  
+  const csv = objectsToCSV(cleanedCandidates);
+  downloadCSV(csv, filename);
+};
+
 // Sample candidate data for CSV template
 export const sampleCandidatesCSV = (): string => {
   const sampleData = [

@@ -15,6 +15,8 @@ import { JobDetails } from "@/components/jobs/JobDetails";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { RBACWrapper } from "@/components/layout/RBACWrapper";
+import { BulkImportJobs } from "@/components/jobs/BulkImportJobs";
+import { ExportJobs } from "@/components/jobs/ExportJobs";
 
 const getJobTypeColor = (type: Job["type"]) => {
   switch (type) {
@@ -349,6 +351,10 @@ const JobsPage = () => {
               <Filter className="h-4 w-4" />
               Filter
             </Button>
+            
+            <BulkImportJobs onSuccess={refetch} />
+            
+            <ExportJobs jobs={filteredJobs} />
             
             <Sheet>
               <SheetTrigger asChild>
