@@ -19,7 +19,7 @@ const RolePermissionsPage = () => {
           </p>
         </div>
 
-        <Alert variant="warning" className="bg-amber-50 text-amber-800 border-amber-200">
+        <Alert variant="warning">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Admin only area</AlertTitle>
           <AlertDescription>
