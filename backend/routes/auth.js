@@ -5,18 +5,22 @@ module.exports = (db) => {
   const router = express.Router();
 
   // Login
-  router.post('/login', (req, res) => {
+  router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     
-    // In a real app, you would validate the password
-    // For demo purposes, we're just checking if the email exists
-    const user = db.users.find(u => u.email === email);
-    
-    if (user) {
-      // In a real app, you would generate a JWT token here
-      res.json(user);
-    } else {
-      res.status(401).json({ message: 'Invalid credentials' });
+    try {
+      // In a real app, you would validate the password with proper hashing
+      const user = await db('users').where({ email }).first();
+      
+      if (user) {
+        // In a real app, you would generate a JWT token here
+        res.json(user);
+      } else {
+        res.status(401).json({ message: 'Invalid credentials' });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Server error' });
     }
   });
 
@@ -27,17 +31,21 @@ module.exports = (db) => {
   });
 
   // Get current user
-  router.get('/me', (req, res) => {
+  router.get('/me', async (req, res) => {
     // In a real app, you would decode the JWT token
-    // For demo purposes, we'll use the first user
     const userId = req.headers.authorization?.split(' ')[1];
     
     if (userId) {
-      const user = db.users.find(u => u.id === userId);
-      if (user) {
-        res.json(user);
-      } else {
-        res.status(404).json({ message: 'User not found' });
+      try {
+        const user = await db('users').where({ id: userId }).first();
+        if (user) {
+          res.json(user);
+        } else {
+          res.status(404).json({ message: 'User not found' });
+        }
+      } catch (error) {
+        console.error('Get current user error:', error);
+        res.status(500).json({ message: 'Server error' });
       }
     } else {
       res.status(401).json({ message: 'Unauthorized' });

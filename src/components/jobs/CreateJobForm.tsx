@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -7,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { jobsApi } from "@/services/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Job } from "@/types";
+import { aiApi } from "@/services/api";
+import { Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -75,6 +76,51 @@ export function CreateJobForm({ open, onOpenChange }: CreateJobFormProps) {
       currency: "USD",
     },
   });
+
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerateDescription = async () => {
+    const title = form.getValues("title");
+    const department = form.getValues("department");
+    
+    if (!title) {
+      toast({
+        title: "Job title required",
+        description: "Please enter a job title to generate a description",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsGenerating(true);
+    try {
+      const generatedData = await aiApi.generateJobDescription(title, department);
+      
+      form.setValue("description", generatedData.description);
+      
+      if (generatedData.requirements && Array.isArray(generatedData.requirements)) {
+        form.setValue("requirements", generatedData.requirements.join("\n"));
+      }
+      
+      if (generatedData.responsibilities && Array.isArray(generatedData.responsibilities)) {
+        form.setValue("responsibilities", generatedData.responsibilities.join("\n"));
+      }
+      
+      toast({
+        title: "Description generated",
+        description: "Job description has been generated successfully",
+      });
+    } catch (error) {
+      console.error("Error generating job description:", error);
+      toast({
+        title: "Generation failed",
+        description: "Failed to generate job description",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const onSubmit = async (data: JobFormValues) => {
     try {
@@ -219,16 +265,33 @@ export function CreateJobForm({ open, onOpenChange }: CreateJobFormProps) {
               />
             </div>
             
+            {/* Modify the description FormField */}
             <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Job Description</FormLabel>
+                  <div className="flex justify-between items-center">
+                    <FormLabel>Description</FormLabel>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleGenerateDescription}
+                      disabled={isGenerating}
+                      className="text-xs"
+                    >
+                      {isGenerating ? (
+                        <><Loader2 className="h-3 w-3 animate-spin mr-1" /> Generating...</>
+                      ) : (
+                        "Generate with AI"
+                      )}
+                    </Button>
+                  </div>
                   <FormControl>
-                    <Textarea
-                      placeholder="Enter job description..."
-                      className="min-h-[100px]"
+                    <Textarea 
+                      placeholder="Enter job description"
+                      className="min-h-[150px]"
                       {...field}
                     />
                   </FormControl>

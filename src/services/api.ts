@@ -1,4 +1,3 @@
-
 import { Job, Candidate, Interview, APPLICATION_STAGES } from "@/types";
 
 // Base API URL - replace with your actual Node.js API endpoint
@@ -251,4 +250,19 @@ export const authApi = {
     const response = await fetch(`${API_URL}/auth/me`, options);
     return handleResponse(response);
   },
+};
+
+// AI-related API calls
+export const aiApi = {
+  processResume: async (resumeText: string): Promise<any> => {
+    const options = createRequestOptions('POST', { resumeText });
+    const response = await fetch(`${API_URL}/ai/process-resume`, options);
+    return handleResponse(response);
+  },
+  
+  generateJobDescription: async (title: string, department?: string): Promise<any> => {
+    const options = createRequestOptions('POST', { title, department });
+    const response = await fetch(`${API_URL}/ai/generate-job-description`, options);
+    return handleResponse(response);
+  }
 };

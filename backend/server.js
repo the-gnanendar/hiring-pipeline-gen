@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const { v4: uuidv4 } = require('uuid');
+const db = require('./db/db');
 
 // Load environment variables
 dotenv.config();
@@ -15,45 +16,17 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// In-memory data storage (for demo purposes)
-// In a real app, you'd use a database like MongoDB or PostgreSQL
-const db = {
-  jobs: [],
-  candidates: [],
-  interviews: [],
-  users: [
-    {
-      id: '1',
-      name: 'Admin User',
-      email: 'admin@example.com',
-      role: 'admin',
-      avatar: 'AU',
-    },
-    {
-      id: '2',
-      name: 'Recruiter User',
-      email: 'recruiter@example.com',
-      role: 'recruiter',
-      avatar: 'RU',
-      department: 'HR',
-    },
-    {
-      id: '3',
-      name: 'Manager User',
-      email: 'manager@example.com',
-      role: 'hiring_manager',
-      avatar: 'MU',
-      department: 'Engineering',
-    },
-    {
-      id: '4',
-      name: 'Viewer User',
-      email: 'viewer@example.com',
-      role: 'viewer',
-      avatar: 'VU',
-    },
-  ]
-};
+// Initialize database by running PostgreSQL extension
+app.use(async (req, res, next) => {
+  try {
+    // Check if the uuid-ossp extension is available and enable it if not
+    await db.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+    next();
+  } catch (error) {
+    console.error('Database initialization error:', error);
+    res.status(500).json({ error: 'Database initialization failed' });
+  }
+});
 
 // Import route handlers
 const jobRoutes = require('./routes/jobs');
@@ -61,13 +34,15 @@ const candidateRoutes = require('./routes/candidates');
 const interviewRoutes = require('./routes/interviews');
 const jobPortalRoutes = require('./routes/job-portals');
 const authRoutes = require('./routes/auth');
+const aiRoutes = require('./routes/ai');
 
-// Use routes
+// Use routes - pass the database connection to each route
 app.use('/api/jobs', jobRoutes(db));
 app.use('/api/candidates', candidateRoutes(db));
 app.use('/api/interviews', interviewRoutes(db));
 app.use('/api/job-portals', jobPortalRoutes(db));
 app.use('/api/auth', authRoutes(db));
+app.use('/api/ai', aiRoutes(db));
 
 // Health check endpoint
 app.get('/api/health-check', (req, res) => {
