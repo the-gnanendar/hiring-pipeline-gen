@@ -13,8 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Role } from "@/types";
-import { Edit, Trash2, UserCog } from "lucide-react";
-import { UserRoleSelect } from "@/components/users/UserRoleSelect";
+import { Edit, Trash2 } from "lucide-react";
 import { RBACWrapper } from "@/components/layout/RBACWrapper";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -68,15 +67,9 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete })
               </TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                <RBACWrapper requiredPermission={{ action: 'update', subject: 'users' }}>
-                  <UserRoleSelect userId={user.id} currentRole={user.role} disabled={user.id === currentUser?.id} />
-                </RBACWrapper>
-                <RBACWrapper 
-                  requiredPermission={{ action: 'update', subject: 'users' }}
-                  fallback={<Badge className={getRoleBadgeColor(user.role)}>{user.role.replace('_', ' ')}</Badge>}
-                >
-                  {null}
-                </RBACWrapper>
+                <Badge className={getRoleBadgeColor(user.role)}>
+                  {user.role.replace('_', ' ')}
+                </Badge>
               </TableCell>
               <TableCell>{user.department || '—'}</TableCell>
               <TableCell>
