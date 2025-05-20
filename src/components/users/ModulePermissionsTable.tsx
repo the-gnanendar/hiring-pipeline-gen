@@ -76,4 +76,4 @@ export const ModulePermissionsTable = () => {
   );
 };
 
-export default ModulePermissionsTable;
+// Remove the default export
