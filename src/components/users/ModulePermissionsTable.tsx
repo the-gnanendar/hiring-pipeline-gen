@@ -75,5 +75,3 @@ export const ModulePermissionsTable = () => {
     </Table>
   );
 };
-
-// Remove the default export

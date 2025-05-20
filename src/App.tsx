@@ -7,9 +7,10 @@ import { Toaster } from './components/ui/toaster';
 import IndexPage from './pages/Index';
 import CandidatesPage from './pages/Candidates';
 import JobsPage from './pages/Jobs';
-import InterviewsPage from './pages/Interviews';
 import UserManagementPage from './pages/UserManagement';
-import RolePermissionsPage from './pages/RolePermissions';
+import RoleManagementPage from './pages/RoleManagement';
+import WorkflowPage from './pages/Workflow';
+import ReportsPage from './pages/Reports';
 import LoginPage from './pages/Login';
 import UnauthorizedPage from './pages/Unauthorized';
 import NotFoundPage from './pages/NotFound';
@@ -39,9 +40,15 @@ function App() {
           </ProtectedRoute>
         } />
         
-        <Route path="/interviews" element={
-          <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'interviews' }]}>
-            <InterviewsPage />
+        <Route path="/workflow" element={
+          <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'jobs' }]}>
+            <WorkflowPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/reports" element={
+          <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'jobs' }]}>
+            <ReportsPage />
           </ProtectedRoute>
         } />
         
@@ -51,9 +58,9 @@ function App() {
           </ProtectedRoute>
         } />
         
-        <Route path="/role-permissions" element={
+        <Route path="/roles" element={
           <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'users' }]}>
-            <RolePermissionsPage />
+            <RoleManagementPage />
           </ProtectedRoute>
         } />
         

@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Calendar, FileText, FolderPlus, Search, User, Users, Settings, Shield } from 'lucide-react';
+import { Calendar, FileText, FolderPlus, Search, User, Users, Settings, Shield, BarChart3, Workflow } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function Sidebar() {
@@ -13,13 +13,14 @@ export function Sidebar() {
     { name: 'Dashboard', href: '/', icon: <FileText className="h-5 w-5" /> },
     { name: 'Candidates', href: '/candidates', icon: <Users className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'candidates' as const } },
     { name: 'Jobs', href: '/jobs', icon: <FolderPlus className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'jobs' as const } },
-    { name: 'Interviews', href: '/interviews', icon: <Calendar className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'interviews' as const } },
+    { name: 'Workflow', href: '/workflow', icon: <Workflow className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'jobs' as const } },
+    { name: 'Reports', href: '/reports', icon: <BarChart3 className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'jobs' as const } },
   ];
   
   // Define user management navigation items
   const userManagementNav = [
     { name: 'User Management', href: '/users', icon: <User className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'users' as const } },
-    { name: 'Role Permissions', href: '/role-permissions', icon: <Shield className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'users' as const } },
+    { name: 'Role Management', href: '/roles', icon: <Shield className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'users' as const } },
   ];
   
   return (
