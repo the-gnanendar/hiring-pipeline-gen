@@ -16,7 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export function Sidebar() {
   const location = useLocation();
-  const { hasPermission } = useAuth();
+  const { hasPermission, currentUser } = useAuth();
   
   // Define navigation items
   const navigation = [
@@ -32,6 +32,14 @@ export function Sidebar() {
     { name: 'User Management', href: '/users', icon: <User className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'users' as const } },
     { name: 'Role Management', href: '/roles', icon: <Shield className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'users' as const } },
   ];
+  
+  // Define settings navigation item - only for admins
+  const settingsNav = [
+    { name: 'Settings', href: '/settings', icon: <Settings className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'settings' as const } },
+  ];
+  
+  // Show settings only for admin users or users with settings permission
+  const showSettings = currentUser?.role === 'admin' || hasPermission('read', 'settings');
   
   return (
     <div className="flex h-full flex-col border-r bg-white">
@@ -85,6 +93,40 @@ export function Sidebar() {
                 const showItem = !item.permission || hasPermission(item.permission.action, item.permission.subject);
                 
                 if (!showItem) return null;
+                
+                return (
+                  <li key={item.name}>
+                    <Link
+                      to={item.href}
+                      className={cn(
+                        "group flex items-center rounded-md px-3 py-2 text-sm font-medium",
+                        isActive
+                          ? "bg-ats-50 text-ats-700"
+                          : "text-gray-700 hover:bg-ats-50 hover:text-ats-700"
+                      )}
+                    >
+                      <div className={cn("mr-3", isActive ? "text-ats-600" : "text-gray-400 group-hover:text-ats-600")}>
+                        {item.icon}
+                      </div>
+                      {item.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+        
+        {/* Settings Section - only for admins */}
+        {showSettings && (
+          <>
+            <div className="my-3 px-3">
+              <div className="border-t" />
+              <h3 className="mt-3 text-xs font-semibold text-gray-500">ADMINISTRATION</h3>
+            </div>
+            <ul className="space-y-1">
+              {settingsNav.map((item) => {
+                const isActive = location.pathname === item.href;
                 
                 return (
                   <li key={item.name}>

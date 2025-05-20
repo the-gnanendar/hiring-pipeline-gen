@@ -11,6 +11,7 @@ import UserManagementPage from './pages/UserManagement';
 import RoleManagementPage from './pages/RoleManagement';
 import WorkflowPage from './pages/Workflow';
 import ReportsPage from './pages/Reports';
+import SettingsPage from './pages/Settings';
 import LoginPage from './pages/Login';
 import UnauthorizedPage from './pages/Unauthorized';
 import NotFoundPage from './pages/NotFound';
@@ -61,6 +62,12 @@ function App() {
         <Route path="/roles" element={
           <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'users' }]}>
             <RoleManagementPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings" element={
+          <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'settings' }]}>
+            <SettingsPage />
           </ProtectedRoute>
         } />
         

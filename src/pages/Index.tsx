@@ -4,7 +4,7 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { RecentApplications } from "@/components/dashboard/RecentApplications";
 import { HiringPipeline } from "@/components/dashboard/HiringPipeline";
-import { Calendar, FileText, FolderPlus, User, Users } from "lucide-react";
+import { Calendar, FileText, FolderPlus, Users } from "lucide-react";
 
 const Dashboard = () => {
   return (
