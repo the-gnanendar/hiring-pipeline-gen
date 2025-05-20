@@ -1,7 +1,17 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Calendar, FileText, FolderPlus, Search, User, Users, Settings, Shield, BarChart3, Workflow } from 'lucide-react';
+import { 
+  Calendar, 
+  FileText, 
+  FolderPlus, 
+  User, 
+  Users, 
+  Settings, 
+  Shield, 
+  BarChart3, 
+  Workflow 
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function Sidebar() {

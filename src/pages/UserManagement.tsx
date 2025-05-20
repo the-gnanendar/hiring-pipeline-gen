@@ -4,14 +4,32 @@ import { Layout } from "@/components/layout/Layout";
 import { RBACWrapper } from "@/components/layout/RBACWrapper";
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { UserTable } from "@/components/users/UserTable";
 import { AddUserDialog } from "@/components/users/AddUserDialog";
 import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 const UserManagement = () => {
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const { users } = useAuth();
+  const { toast } = useToast();
+
+  const handleDeleteUser = (userId: string) => {
+    // In a real implementation, you would call an API to delete the user
+    toast({
+      title: "User deleted",
+      description: "The user has been successfully deleted.",
+    });
+  };
+
+  const handleEditUser = (userId: string) => {
+    // In a real implementation, this would open a dialog to edit the user
+    toast({
+      title: "Edit user",
+      description: "The edit user dialog would open here.",
+    });
+  };
 
   return (
     <Layout title="User Management">
@@ -20,7 +38,7 @@ const UserManagement = () => {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
             <p className="text-muted-foreground">
-              Manage user accounts and their permission levels
+              Manage user accounts and their roles
             </p>
           </div>
           <RBACWrapper requiredPermission={{ action: 'create', subject: 'users' }}>
@@ -33,7 +51,11 @@ const UserManagement = () => {
 
         <Card>
           <CardContent className="pt-6">
-            <UserTable users={users} />
+            <UserTable 
+              users={users} 
+              onEdit={handleEditUser} 
+              onDelete={handleDeleteUser} 
+            />
           </CardContent>
         </Card>
         

@@ -13,16 +13,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Role } from "@/types";
-import { Edit, UserCog } from "lucide-react";
+import { Edit, Trash2, UserCog } from "lucide-react";
 import { UserRoleSelect } from "@/components/users/UserRoleSelect";
 import { RBACWrapper } from "@/components/layout/RBACWrapper";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface UserTableProps {
   users: User[];
+  onEdit: (userId: string) => void;
+  onDelete: (userId: string) => void;
 }
 
-export const UserTable: React.FC<UserTableProps> = ({ users }) => {
+export const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
   const { currentUser } = useAuth();
   
   const getRoleBadgeColor = (role: Role) => {
@@ -50,7 +52,7 @@ export const UserTable: React.FC<UserTableProps> = ({ users }) => {
             <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Department</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
+            <TableHead className="w-[120px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -79,10 +81,25 @@ export const UserTable: React.FC<UserTableProps> = ({ users }) => {
               <TableCell>{user.department || '—'}</TableCell>
               <TableCell>
                 <RBACWrapper requiredPermission={{ action: 'update', subject: 'users' }}>
-                  <Button variant="ghost" size="icon">
-                    <Edit className="h-4 w-4" />
-                    <span className="sr-only">Edit user</span>
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => onEdit(user.id)}
+                    >
+                      <Edit className="h-4 w-4" />
+                      <span className="sr-only">Edit user</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => onDelete(user.id)}
+                      disabled={user.id === currentUser?.id}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete user</span>
+                    </Button>
+                  </div>
                 </RBACWrapper>
               </TableCell>
             </TableRow>

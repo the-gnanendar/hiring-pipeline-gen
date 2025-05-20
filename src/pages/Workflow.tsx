@@ -3,10 +3,13 @@ import { useState } from 'react';
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DEFAULT_WORKFLOW_STAGES, APPLICATION_STAGES } from '@/types';
+import { DEFAULT_WORKFLOW_STAGES } from '@/types';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { Search, Filter, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const Workflow = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -52,15 +55,118 @@ const Workflow = () => {
     }
   ];
 
+  // Stats for each job
+  const jobStats = {
+    all: {
+      total: 12,
+      active: 8,
+      stages: [
+        { name: "Sourcing", count: 18 },
+        { name: "Screening", count: 12 },
+        { name: "Interviewing", count: 8 },
+        { name: "Evaluation", count: 5 },
+        { name: "Offer", count: 3 },
+        { name: "Onboarding", count: 2 }
+      ]
+    },
+    frontend: {
+      total: 5,
+      active: 3,
+      stages: [
+        { name: "Sourcing", count: 8 },
+        { name: "Screening", count: 5 },
+        { name: "Interviewing", count: 3 },
+        { name: "Evaluation", count: 2 },
+        { name: "Offer", count: 1 },
+        { name: "Onboarding", count: 1 }
+      ]
+    },
+    backend: {
+      total: 4,
+      active: 3,
+      stages: [
+        { name: "Sourcing", count: 6 },
+        { name: "Screening", count: 4 },
+        { name: "Interviewing", count: 3 },
+        { name: "Evaluation", count: 2 },
+        { name: "Offer", count: 1 },
+        { name: "Onboarding", count: 1 }
+      ]
+    },
+    design: {
+      total: 3,
+      active: 2,
+      stages: [
+        { name: "Sourcing", count: 4 },
+        { name: "Screening", count: 3 },
+        { name: "Interviewing", count: 2 },
+        { name: "Evaluation", count: 1 },
+        { name: "Offer", count: 1 },
+        { name: "Onboarding", count: 0 }
+      ]
+    }
+  };
+
   return (
-    <Layout title="Workflow">
+    <Layout title="Recruitment Workflow">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Candidate Workflow</h1>
-          <p className="text-muted-foreground">
-            Track candidates through the hiring process
-          </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Recruitment Workflow</h1>
+            <p className="text-muted-foreground">
+              Track candidates through your hiring pipeline
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative w-64">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search candidates..."
+                className="pl-8 w-full"
+              />
+            </div>
+            <Button variant="outline" size="icon">
+              <Filter className="h-4 w-4" />
+            </Button>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Candidate
+            </Button>
+          </div>
         </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {jobStats[activeTab as keyof typeof jobStats].stages.map((stage, idx) => (
+            <Card key={idx} className="shadow-sm">
+              <CardHeader className={`${DEFAULT_WORKFLOW_STAGES[idx].color} text-white rounded-t-lg px-4 py-2`}>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-sm font-medium">{stage.name}</CardTitle>
+                  <Badge variant="outline" className="bg-white/20 hover:bg-white/30 text-white">
+                    {stage.count}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-3 text-center">
+                <div className="text-2xl font-semibold">{stage.count}</div>
+                <div className="text-xs text-muted-foreground">Candidates</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Card className="shadow-sm border-t-4 border-blue-500">
+          <CardHeader className="pb-0">
+            <div className="flex justify-between items-center">
+              <CardTitle>Active Jobs</CardTitle>
+              <Badge variant="outline" className="bg-blue-50 text-blue-600 hover:bg-blue-100">
+                {jobStats[activeTab as keyof typeof jobStats].active} Active
+              </Badge>
+            </div>
+            <CardDescription>
+              {jobStats[activeTab as keyof typeof jobStats].total} total jobs, {jobStats[activeTab as keyof typeof jobStats].active} currently active
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
           <div className="flex justify-between items-center mb-4">
