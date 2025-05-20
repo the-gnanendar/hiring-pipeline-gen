@@ -9,6 +9,7 @@ import { UserTable } from "@/components/users/UserTable";
 import { AddUserDialog } from "@/components/users/AddUserDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { ModulePermissionsTable } from "@/components/users/ModulePermissionsTable";
 
 const UserManagement = () => {
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
