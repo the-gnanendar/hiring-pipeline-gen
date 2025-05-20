@@ -16,6 +16,7 @@ export interface Job {
     max: number;
     currency: string;
   };
+  workflowStages?: WorkflowStage[];
 }
 
 export interface Candidate {
@@ -31,6 +32,7 @@ export interface Candidate {
   experience?: number;
   education?: string[];
   applicationStage?: ApplicationStage;
+  currentStageId?: string;
   jobId?: string;
 }
 
@@ -72,6 +74,15 @@ export interface Permission {
 
 export interface RolePermissions {
   [role: string]: Permission[];
+}
+
+export interface WorkflowStage {
+  id: string;
+  name: string;
+  order: number;
+  color: string;
+  description?: string;
+  isDefault?: boolean;
 }
 
 export interface ApplicationStage {
@@ -160,5 +171,57 @@ export const APPLICATION_STAGES: ApplicationStage[] = [
     order: 11,
     color: "bg-red-500",
     description: "Candidate is not moving forward in the process"
+  }
+];
+
+// Default workflow stages for jobs
+export const DEFAULT_WORKFLOW_STAGES: WorkflowStage[] = [
+  {
+    id: "sourcing",
+    name: "Sourcing",
+    order: 1,
+    color: "bg-blue-500",
+    description: "Finding and attracting potential candidates",
+    isDefault: true
+  },
+  {
+    id: "screening",
+    name: "Screening",
+    order: 2,
+    color: "bg-purple-500",
+    description: "Initial review of applications and resumes",
+    isDefault: true
+  },
+  {
+    id: "interviewing",
+    name: "Interviewing",
+    order: 3,
+    color: "bg-amber-500",
+    description: "Conducting interviews with shortlisted candidates",
+    isDefault: true
+  },
+  {
+    id: "evaluation",
+    name: "Evaluation",
+    order: 4,
+    color: "bg-teal-500",
+    description: "Assessing candidates after interviews",
+    isDefault: true
+  },
+  {
+    id: "offer",
+    name: "Offer",
+    order: 5,
+    color: "bg-green-500",
+    description: "Making offers to selected candidates",
+    isDefault: true
+  },
+  {
+    id: "onboarding",
+    name: "Onboarding",
+    order: 6,
+    color: "bg-emerald-500",
+    description: "Bringing new hires into the organization",
+    isDefault: true
   }
 ];

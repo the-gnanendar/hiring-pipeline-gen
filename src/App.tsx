@@ -8,7 +8,6 @@ import IndexPage from './pages/Index';
 import CandidatesPage from './pages/Candidates';
 import JobsPage from './pages/Jobs';
 import InterviewsPage from './pages/Interviews';
-import AIAssistantPage from './pages/AIAssistant';
 import UserManagementPage from './pages/UserManagement';
 import RolePermissionsPage from './pages/RolePermissions';
 import LoginPage from './pages/Login';
@@ -55,12 +54,6 @@ function App() {
         <Route path="/role-permissions" element={
           <ProtectedRoute requiredPermissions={[{ action: 'read', subject: 'users' }]}>
             <RolePermissionsPage />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/ai-assistant" element={
-          <ProtectedRoute>
-            <AIAssistantPage />
           </ProtectedRoute>
         } />
         

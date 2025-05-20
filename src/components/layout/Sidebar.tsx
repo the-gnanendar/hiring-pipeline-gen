@@ -14,7 +14,6 @@ export function Sidebar() {
     { name: 'Candidates', href: '/candidates', icon: <Users className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'candidates' as const } },
     { name: 'Jobs', href: '/jobs', icon: <FolderPlus className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'jobs' as const } },
     { name: 'Interviews', href: '/interviews', icon: <Calendar className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'interviews' as const } },
-    { name: 'AI Assistant', href: '/ai-assistant', icon: <Search className="h-5 w-5" /> },
   ];
   
   // Define user management navigation items

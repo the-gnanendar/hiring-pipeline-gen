@@ -4,10 +4,11 @@ import { Layout } from "@/components/layout/Layout";
 import { RBACWrapper } from "@/components/layout/RBACWrapper";
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/button";
-import { Plus, UserCog } from "lucide-react";
+import { Plus } from "lucide-react";
 import { UserTable } from "@/components/users/UserTable";
 import { AddUserDialog } from "@/components/users/AddUserDialog";
-import { User } from "@/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 
 const UserManagement = () => {
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
@@ -20,7 +21,7 @@ const UserManagement = () => {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
             <p className="text-muted-foreground">
-              Manage user accounts and their roles
+              Manage user accounts and their permission levels
             </p>
           </div>
           <RBACWrapper requiredPermission={{ action: 'create', subject: 'users' }}>
@@ -31,7 +32,28 @@ const UserManagement = () => {
           </RBACWrapper>
         </div>
 
-        <UserTable users={users} />
+        <Tabs defaultValue="users" className="w-full">
+          <TabsList>
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="roles">Roles</TabsTrigger>
+          </TabsList>
+          <TabsContent value="users" className="mt-4">
+            <UserTable users={users} />
+          </TabsContent>
+          <TabsContent value="roles" className="mt-4">
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Review and manage role-based permissions for different modules in the system.
+                </p>
+                <div className="overflow-x-auto">
+                  <ModulePermissionsTable />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+        
         <AddUserDialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen} />
       </div>
     </Layout>
