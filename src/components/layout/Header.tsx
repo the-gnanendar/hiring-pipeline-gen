@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Bell, Plus } from "lucide-react";
+import { Bell } from "lucide-react";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 interface HeaderProps {
   title: string;
@@ -17,10 +18,7 @@ export function Header({ title }: HeaderProps) {
             3
           </span>
         </Button>
-        <Button className="gap-1 bg-ats-600 hover:bg-ats-700">
-          <Plus className="h-4 w-4" />
-          <span>New</span>
-        </Button>
+        <UserMenu />
       </div>
     </header>
   );
