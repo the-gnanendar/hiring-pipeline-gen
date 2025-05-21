@@ -55,6 +55,61 @@ export interface PipelineLevel {
   assignedUsers?: string[];
 }
 
+// Workflow Stage
+export interface WorkflowStage {
+  id: string;
+  name: string;
+  description?: string;
+  color: string;
+  order: number;
+}
+
+// Default Workflow Stages
+export const DEFAULT_WORKFLOW_STAGES: WorkflowStage[] = [
+  {
+    id: 'sourcing',
+    name: 'Sourcing',
+    description: 'Finding and attracting candidates',
+    color: 'bg-blue-500',
+    order: 1
+  },
+  {
+    id: 'screening',
+    name: 'Screening',
+    description: 'Initial evaluation of candidates',
+    color: 'bg-purple-500',
+    order: 2
+  },
+  {
+    id: 'interviewing',
+    name: 'Interviewing',
+    description: 'Conducting interviews with candidates',
+    color: 'bg-orange-500',
+    order: 3
+  },
+  {
+    id: 'evaluation',
+    name: 'Evaluation',
+    description: 'Evaluating candidates after interviews',
+    color: 'bg-yellow-500',
+    order: 4
+  },
+  {
+    id: 'offer',
+    name: 'Offer',
+    description: 'Extending job offers to candidates',
+    color: 'bg-green-500',
+    order: 5
+  },
+  {
+    id: 'onboarding',
+    name: 'Onboarding',
+    description: 'Onboarding new hires',
+    color: 'bg-teal-500',
+    order: 6
+  }
+];
+
 // Candidate Application Stage
 export interface ApplicationStage {
   id: string;
@@ -237,4 +292,10 @@ export interface ApiKeySettings {
   googleMeetApiKey?: string;
   emailNotificationApiKey?: string;
   smsNotificationApiKey?: string;
+}
+
+// Role Permissions for lookup table
+export interface RolePermissions {
+  role: Role;
+  permissions: Permission[];
 }

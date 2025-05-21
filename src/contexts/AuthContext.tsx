@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, Role, Permission, RolePermissions } from '@/types';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { User, Permission, Role, RolePermissions } from '@/types';
 
 // Define role permissions
 const rolePermissions: RolePermissions = {
@@ -97,7 +97,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
