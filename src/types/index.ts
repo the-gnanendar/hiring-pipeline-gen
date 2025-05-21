@@ -30,8 +30,8 @@ export interface Job {
   title: string;
   department: string;
   location: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'internship';
-  status: 'draft' | 'active' | 'paused' | 'closed';
+  type: 'full-time' | 'part-time' | 'contract' | 'internship' | 'remote';
+  status: 'draft' | 'active' | 'paused' | 'closed' | 'on-hold';
   applicants: number;
   postedDate: string;
   description?: string;
@@ -235,7 +235,7 @@ export interface Candidate {
   email: string;
   phone?: string;
   position: string;
-  status: 'new' | 'screening' | 'interview' | 'offer' | 'hired' | 'rejected';
+  status: 'new' | 'screening' | 'interview' | 'offer' | 'hired' | 'rejected' | 'reviewing';
   date: string;
   initials: string;
   resumeUrl?: string;
@@ -245,6 +245,14 @@ export interface Candidate {
   skills?: SkillRating[];
   feedback?: InterviewFeedback[];
   overallRating?: number; // 1-5, averaged from feedback
+  education?: string[];
+  resume?: string;
+}
+
+// Interviewer Type
+export interface Interviewer {
+  name: string;
+  initials: string;
 }
 
 // Interview Type
@@ -260,10 +268,17 @@ export interface Interview {
   startTime: string;
   endTime: string;
   location: string;
-  type: 'in-person' | 'phone' | 'video';
+  type: 'in-person' | 'phone' | 'video' | 'technical' | 'culture' | 'screening' | 'final';
   status: 'scheduled' | 'completed' | 'cancelled';
   notes?: string;
   feedback?: InterviewFeedback;
+  time?: string;
+  candidate?: {
+    name: string;
+    position: string;
+    initials: string;
+  };
+  interviewers?: Interviewer[];
 }
 
 // Workflow step
@@ -296,6 +311,5 @@ export interface ApiKeySettings {
 
 // Role Permissions for lookup table
 export interface RolePermissions {
-  role: Role;
-  permissions: Permission[];
+  [key: string]: Permission[];
 }
