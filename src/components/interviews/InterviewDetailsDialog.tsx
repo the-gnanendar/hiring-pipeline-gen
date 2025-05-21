@@ -42,6 +42,8 @@ export function InterviewDetailsDialog({
         return "bg-amber-50 text-amber-600";
       case "final":
         return "bg-purple-50 text-purple-600";
+      default:
+        return "bg-gray-50 text-gray-600";
     }
   };
 
@@ -86,12 +88,12 @@ export function InterviewDetailsDialog({
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarFallback className="bg-ats-100 text-ats-800 text-xl">
-                {interview.candidate.initials}
+                {interview.candidate?.initials}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-lg font-semibold">{interview.candidate.name}</h2>
-              <p className="text-muted-foreground">{interview.candidate.position}</p>
+              <h2 className="text-lg font-semibold">{interview.candidate?.name}</h2>
+              <p className="text-muted-foreground">{interview.candidate?.position}</p>
               <div className="mt-1">
                 <Badge variant="secondary" className={cn(getInterviewTypeStyles(interview.type))}>
                   {interview.type.charAt(0).toUpperCase() + interview.type.slice(1)} Interview
@@ -110,7 +112,7 @@ export function InterviewDetailsDialog({
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{interview.time}</span>
+                  <span className="text-sm">{interview.time || `${interview.startTime} - ${interview.endTime}`}</span>
                 </div>
               </div>
             </div>
@@ -118,7 +120,7 @@ export function InterviewDetailsDialog({
             <div>
               <h3 className="text-sm font-medium mb-2">Interviewers</h3>
               <div className="space-y-2">
-                {interview.interviewers.map((interviewer, index) => (
+                {interview.interviewers?.map((interviewer, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">{interviewer.name}</span>

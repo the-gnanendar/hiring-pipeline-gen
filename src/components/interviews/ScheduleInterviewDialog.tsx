@@ -117,16 +117,25 @@ export function ScheduleInterviewDialog({
     const formattedDate = format(values.interviewDate, "MMM d");
 
     onSubmit({
+      candidateId: Math.random().toString(36).substring(2, 9),
+      candidateName: values.candidateName,
+      jobId: Math.random().toString(36).substring(2, 9),
+      jobTitle: values.candidatePosition,
+      interviewerId: Math.random().toString(36).substring(2, 9),
+      interviewerName: values.interviewer1,
+      date: formattedDate,
+      startTime: values.startTime,
+      endTime: values.endTime,
+      location: "Online",
+      type: values.interviewType,
+      status: "scheduled",
+      time: `${values.startTime} - ${values.endTime}`,
       candidate: {
         name: values.candidateName,
         position: values.candidatePosition,
         initials: getInitials(values.candidateName),
       },
       interviewers,
-      date: formattedDate,
-      time: `${values.startTime} - ${values.endTime}`,
-      type: values.interviewType,
-      status: "scheduled",
     });
 
     onOpenChange(false);

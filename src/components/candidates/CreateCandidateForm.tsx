@@ -55,7 +55,7 @@ const formSchema = z.object({
   position: z.string().min(2, {
     message: "Position must be at least 2 characters.",
   }),
-  status: z.enum(["new", "reviewing", "interview", "offer", "rejected"]),
+  status: z.enum(["new", "reviewing", "interview", "offer", "rejected", "screening", "hired"]),
   education: z.string().optional(),
   resume: z.string().optional(),
   skills: z.array(z.string()).optional(),
@@ -131,7 +131,13 @@ export function CreateCandidateForm({
           phone: values.phone,
           education: education,
           resume: values.resume,
-          experience: experiences.length > 0 ? experiences.length : undefined,
+          experiences: experiences.length > 0 ? experiences.map(exp => ({
+            id: exp.id,
+            company: exp.company,
+            position: exp.position,
+            startDate: exp.duration,
+            description: exp.description
+          })) : undefined,
         });
       }
       

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,19 @@ import { InterviewDetailsDialog } from "@/components/interviews/InterviewDetails
 const interviews: Interview[] = [
   {
     id: "1",
+    candidateId: "c1",
+    candidateName: "Emma Davis",
+    jobId: "j1",
+    jobTitle: "Frontend Developer",
+    interviewerId: "i1",
+    interviewerName: "John Smith",
+    date: "Today",
+    startTime: "10:00 AM",
+    endTime: "11:00 AM",
+    location: "Online",
+    type: "technical",
+    status: "scheduled",
+    time: "10:00 AM - 11:00 AM",
     candidate: {
       name: "Emma Davis",
       position: "Frontend Developer",
@@ -34,14 +46,23 @@ const interviews: Interview[] = [
     interviewers: [
       { name: "John Smith", initials: "JS" },
       { name: "Alice Wong", initials: "AW" }
-    ],
-    date: "Today",
-    time: "10:00 AM - 11:00 AM",
-    type: "technical",
-    status: "scheduled"
+    ]
   },
   {
     id: "2",
+    candidateId: "c2",
+    candidateName: "Michael Brown",
+    jobId: "j2",
+    jobTitle: "Product Manager",
+    interviewerId: "i2",
+    interviewerName: "Sarah Johnson",
+    date: "Today",
+    startTime: "2:00 PM",
+    endTime: "3:00 PM",
+    location: "Online",
+    type: "culture",
+    status: "scheduled",
+    time: "2:00 PM - 3:00 PM",
     candidate: {
       name: "Michael Brown",
       position: "Product Manager",
@@ -49,14 +70,23 @@ const interviews: Interview[] = [
     },
     interviewers: [
       { name: "Sarah Johnson", initials: "SJ" }
-    ],
-    date: "Today",
-    time: "2:00 PM - 3:00 PM",
-    type: "culture",
-    status: "scheduled"
+    ]
   },
   {
     id: "3",
+    candidateId: "c3",
+    candidateName: "Sophie Miller",
+    jobId: "j3",
+    jobTitle: "UX Designer",
+    interviewerId: "i3",
+    interviewerName: "David Chen",
+    date: "Tomorrow",
+    startTime: "9:30 AM",
+    endTime: "10:30 AM",
+    location: "Online",
+    type: "screening",
+    status: "scheduled",
+    time: "9:30 AM - 10:30 AM",
     candidate: {
       name: "Sophie Miller",
       position: "UX Designer",
@@ -65,14 +95,23 @@ const interviews: Interview[] = [
     interviewers: [
       { name: "David Chen", initials: "DC" },
       { name: "Emma Wilson", initials: "EW" }
-    ],
-    date: "Tomorrow",
-    time: "9:30 AM - 10:30 AM",
-    type: "screening",
-    status: "scheduled"
+    ]
   },
   {
     id: "4",
+    candidateId: "c4",
+    candidateName: "James Wilson",
+    jobId: "j4",
+    jobTitle: "Backend Developer",
+    interviewerId: "i4",
+    interviewerName: "Robert Taylor",
+    date: "Tomorrow",
+    startTime: "1:00 PM",
+    endTime: "2:30 PM",
+    location: "Online",
+    type: "final",
+    status: "scheduled",
+    time: "1:00 PM - 2:30 PM",
     candidate: {
       name: "James Wilson",
       position: "Backend Developer",
@@ -82,14 +121,23 @@ const interviews: Interview[] = [
       { name: "Robert Taylor", initials: "RT" },
       { name: "Jennifer Lee", initials: "JL" },
       { name: "Mark Garcia", initials: "MG" }
-    ],
-    date: "Tomorrow",
-    time: "1:00 PM - 2:30 PM",
-    type: "final",
-    status: "scheduled"
+    ]
   },
   {
     id: "5",
+    candidateId: "c5",
+    candidateName: "Olivia Martinez",
+    jobId: "j5",
+    jobTitle: "Marketing Specialist",
+    interviewerId: "i5",
+    interviewerName: "Thomas Wright",
+    date: "Jun 10",
+    startTime: "11:00 AM",
+    endTime: "12:00 PM",
+    location: "Online",
+    type: "screening",
+    status: "scheduled",
+    time: "11:00 AM - 12:00 PM",
     candidate: {
       name: "Olivia Martinez",
       position: "Marketing Specialist",
@@ -97,11 +145,7 @@ const interviews: Interview[] = [
     },
     interviewers: [
       { name: "Thomas Wright", initials: "TW" }
-    ],
-    date: "Jun 10",
-    time: "11:00 AM - 12:00 PM",
-    type: "screening",
-    status: "scheduled"
+    ]
   }
 ];
 

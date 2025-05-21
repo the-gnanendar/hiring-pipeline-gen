@@ -86,8 +86,8 @@ export function CandidateDetails({
             <Badge variant="secondary" className={cn(getStatusColor(candidate.status))}>
               {candidate.status.charAt(0).toUpperCase() + candidate.status.slice(1)}
             </Badge>
-            {candidate.experience && (
-              <Badge variant="outline">{candidate.experience} years of experience</Badge>
+            {candidate.experiences && candidate.experiences.length > 0 && (
+              <Badge variant="outline">{candidate.experiences.length} years of experience</Badge>
             )}
           </div>
         </DialogHeader>
