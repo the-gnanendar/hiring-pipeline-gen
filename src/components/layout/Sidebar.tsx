@@ -151,17 +151,6 @@ export function Sidebar() {
           </>
         )}
       </nav>
-      <div className="border-t p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-ats-100 text-ats-700">
-            <User className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-medium">Admin User</p>
-            <p className="text-xs text-gray-500">admin@talenttrack.com</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
