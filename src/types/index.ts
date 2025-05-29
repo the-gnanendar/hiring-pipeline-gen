@@ -1,28 +1,38 @@
 // Types for the entire application
 
-// User Roles - Hierarchical structure
-export type Role = 'manage' | 'associate_manage' | 'hiring_manager' | 'recruiter';
+// Dynamic Role System - roles can be created/deleted by admin
+export interface Role {
+  id: string;
+  name: string;
+  description?: string;
+  level: number; // For hierarchy (1 = lowest, higher numbers = more access)
+  permissions: Permission[];
+  createdAt: string;
+  updatedAt: string;
+  isSystemRole?: boolean; // Prevents deletion of core system roles
+}
 
 // Permission Types
 export type ActionType = 'create' | 'read' | 'update' | 'delete';
-export type SubjectType = 'users' | 'roles' | 'candidates' | 'jobs' | 'interviews' | 'reports' | 'pipeline_levels' | 'settings';
+export type SubjectType = 'users' | 'roles' | 'candidates' | 'jobs' | 'interviews' | 'reports' | 'pipeline_levels' | 'settings' | 'recruitment';
 
 export interface Permission {
   action: ActionType;
   subject: SubjectType;
 }
 
-// User Type
+// User Type - now references role by ID
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: Role;
+  roleId: string; // References Role.id instead of hardcoded role string
   department?: string;
   avatar?: string;
-  permissions?: Permission[];
   managerId?: string; // For hierarchical structure
   teamMembers?: string[]; // IDs of users this person manages
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Job Type
@@ -310,20 +320,14 @@ export interface ApiKeySettings {
   smsNotificationApiKey?: string;
 }
 
-// Role Permissions for lookup table
-export interface RolePermissions {
-  [key: string]: Permission[];
-}
-
-// Role hierarchy levels (higher number = more permissions)
-export const ROLE_HIERARCHY: Record<Role, number> = {
-  manage: 4,
-  associate_manage: 3,
-  hiring_manager: 2,
-  recruiter: 1,
+// Helper function to check if user role level can access target role level
+export const canAccessRoleLevel = (userRoleLevel: number, targetRoleLevel: number): boolean => {
+  return userRoleLevel >= targetRoleLevel;
 };
 
-// Helper function to check if role A can access role B's permissions
-export const canAccessRole = (userRole: Role, targetRole: Role): boolean => {
-  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[targetRole];
+// Helper function to check if user has specific permission
+export const hasPermission = (userPermissions: Permission[], action: ActionType, subject: SubjectType): boolean => {
+  return userPermissions.some(permission => 
+    permission.action === action && permission.subject === subject
+  );
 };
