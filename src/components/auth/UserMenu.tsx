@@ -13,7 +13,7 @@ import { LogOut, User, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export function UserMenu() {
-  const { currentUser, logout, hasPermission } = useAuth();
+  const { currentUser, currentRole, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
   
   if (!currentUser) return null;
@@ -30,7 +30,7 @@ export function UserMenu() {
           <div className="hidden md:block text-start">
             <p className="text-sm font-medium">{currentUser.name}</p>
             <p className="text-xs text-muted-foreground capitalize">
-              {currentUser.role.replace('_', ' ')}
+              {currentRole?.name || 'No Role'}
             </p>
           </div>
         </button>

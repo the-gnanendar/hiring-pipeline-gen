@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login, users } = useAuth();
+  const { login, users, getUserRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -70,18 +70,21 @@ const LoginPage = () => {
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Demo accounts:</p>
               <div className="grid grid-cols-2 gap-2">
-                {users.map(user => (
-                  <Button
-                    key={user.id}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEmail(user.email)}
-                    className="justify-start text-xs h-auto py-1"
-                  >
-                    {user.email} ({user.role})
-                  </Button>
-                ))}
+                {users.map(user => {
+                  const userRole = getUserRole(user.roleId);
+                  return (
+                    <Button
+                      key={user.id}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEmail(user.email)}
+                      className="justify-start text-xs h-auto py-1"
+                    >
+                      {user.email} ({userRole?.name || 'No Role'})
+                    </Button>
+                  );
+                })}
               </div>
             </div>
           </CardContent>

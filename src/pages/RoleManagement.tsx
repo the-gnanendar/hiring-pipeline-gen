@@ -27,7 +27,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/alert-dialog";
 
 const RoleManagement = () => {
   const [isAddRoleDialogOpen, setIsAddRoleDialogOpen] = useState(false);

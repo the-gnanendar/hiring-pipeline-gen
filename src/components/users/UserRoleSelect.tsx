@@ -9,40 +9,47 @@ import {
 } from "@/components/ui/select";
 import { Role } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UserRoleSelectProps {
   userId: string;
-  currentRole: Role;
+  currentRoleId: string;
   disabled?: boolean;
 }
 
 export const UserRoleSelect: React.FC<UserRoleSelectProps> = ({ 
   userId, 
-  currentRole, 
+  currentRoleId, 
   disabled = false 
 }) => {
   const { toast } = useToast();
+  const { roles, getUserRole } = useAuth();
   
-  const handleRoleChange = (newRole: Role) => {
+  const currentRole = getUserRole(currentRoleId);
+  
+  const handleRoleChange = (newRoleId: string) => {
     // In a real app, you would call an API to update the user's role
-    console.log(`Changing user ${userId} role to ${newRole}`);
+    console.log(`Changing user ${userId} role to ${newRoleId}`);
+    
+    const newRole = getUserRole(newRoleId);
     
     toast({
       title: "Role updated",
-      description: `User role has been updated to ${newRole.replace('_', ' ')}`,
+      description: `User role has been updated to ${newRole?.name || 'Unknown'}`,
     });
   };
   
   return (
-    <Select defaultValue={currentRole} onValueChange={handleRoleChange as any} disabled={disabled}>
+    <Select defaultValue={currentRoleId} onValueChange={handleRoleChange} disabled={disabled}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a role" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="admin">Admin</SelectItem>
-        <SelectItem value="recruiter">Recruiter</SelectItem>
-        <SelectItem value="hiring_manager">Hiring Manager</SelectItem>
-        <SelectItem value="viewer">Viewer</SelectItem>
+        {roles.map(role => (
+          <SelectItem key={role.id} value={role.id}>
+            {role.name}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

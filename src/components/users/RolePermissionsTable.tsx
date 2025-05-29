@@ -10,25 +10,17 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Check, X } from "lucide-react";
-import { RolePermissions } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface RolePermissionsTableProps {
-  rolePermissions: RolePermissions;
-}
-
-export const RolePermissionsTable: React.FC<RolePermissionsTableProps> = ({ 
-  rolePermissions 
-}) => {
+export const RolePermissionsTable: React.FC = () => {
+  const { roles } = useAuth();
+  
   // Get all unique subjects
   const allSubjects = Array.from(
     new Set(
-      Object.values(rolePermissions)
-        .flatMap(permissions => permissions.map(p => p.subject))
+      roles.flatMap(role => role.permissions.map(p => p.subject))
     )
   ).sort();
-  
-  // Get all roles
-  const roles = Object.keys(rolePermissions);
   
   // Actions in desired order
   const actions = ["create", "read", "update", "delete"];
@@ -41,8 +33,8 @@ export const RolePermissionsTable: React.FC<RolePermissionsTableProps> = ({
           <TableRow>
             <TableHead className="min-w-[150px]">Permissions</TableHead>
             {roles.map(role => (
-              <TableHead key={role} className="text-center capitalize">
-                {role.replace('_', ' ')}
+              <TableHead key={role.id} className="text-center capitalize">
+                {role.name}
               </TableHead>
             ))}
           </TableRow>
@@ -56,11 +48,11 @@ export const RolePermissionsTable: React.FC<RolePermissionsTableProps> = ({
                     {action} {subject}
                   </TableCell>
                   {roles.map(role => {
-                    const hasPermission = rolePermissions[role].some(
+                    const hasPermission = role.permissions.some(
                       p => p.action === action && p.subject === subject
                     );
                     return (
-                      <TableCell key={`${role}-${subject}-${action}`} className="text-center">
+                      <TableCell key={`${role.id}-${subject}-${action}`} className="text-center">
                         {hasPermission ? (
                           <Check className="h-4 w-4 text-green-500 mx-auto" />
                         ) : (
