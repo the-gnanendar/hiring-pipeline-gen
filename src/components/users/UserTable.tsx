@@ -1,102 +1,118 @@
 
-import React from 'react';
-import { 
-  Table, 
-  TableBody, 
-  TableCaption, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, Role } from "@/types";
 import { Edit, Trash2 } from "lucide-react";
-import { RBACWrapper } from "@/components/layout/RBACWrapper";
 import { useAuth } from "@/contexts/AuthContext";
+import { RBACWrapper } from "@/components/layout/RBACWrapper";
 
 interface UserTableProps {
-  users: User[];
+  users: any[];
   onEdit: (userId: string) => void;
   onDelete: (userId: string) => void;
 }
 
-export const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
-  const { currentUser } = useAuth();
+export const UserTable = ({ users, onEdit, onDelete }: UserTableProps) => {
+  const { getAccessibleUsers, currentUser } = useAuth();
   
-  const getRoleBadgeColor = (role: Role) => {
+  // Filter users based on what current user can access
+  const accessibleUsers = getAccessibleUsers();
+  const filteredUsers = users.filter(user => 
+    accessibleUsers.some(accessible => accessible.id === user.id)
+  );
+
+  const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'admin':
-        return 'bg-red-500';
-      case 'recruiter':
-        return 'bg-blue-500';
+      case 'manage':
+        return 'bg-red-100 text-red-800';
+      case 'associate_manage':
+        return 'bg-orange-100 text-orange-800';
       case 'hiring_manager':
-        return 'bg-green-500';
-      case 'viewer':
-        return 'bg-amber-500';
+        return 'bg-blue-100 text-blue-800';
+      case 'recruiter':
+        return 'bg-green-100 text-green-800';
       default:
-        return 'bg-gray-500';
+        return 'bg-gray-100 text-gray-800';
     }
   };
-  
+
+  const formatRoleName = (role: string) => {
+    return role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   return (
-    <div className="border rounded-lg bg-white">
+    <div className="rounded-md border">
       <Table>
-        <TableCaption>List of all users in the system</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>User</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Department</TableHead>
-            <TableHead className="w-[120px] text-right">Actions</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell className="font-medium">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary/10">{user.avatar || user.name.substring(0, 2)}</AvatarFallback>
-                  </Avatar>
-                  <span>{user.name}</span>
-                </div>
-              </TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                <Badge className={getRoleBadgeColor(user.role)}>
-                  {user.role.replace('_', ' ')}
-                </Badge>
-              </TableCell>
-              <TableCell>{user.department || '—'}</TableCell>
-              <TableCell>
-                <RBACWrapper requiredPermission={{ action: 'update', subject: 'users' }}>
-                  <div className="flex justify-end gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => onEdit(user.id)}
-                    >
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Edit user</span>
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => onDelete(user.id)}
-                      disabled={user.id === currentUser?.id}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete user</span>
-                    </Button>
-                  </div>
-                </RBACWrapper>
+          {filteredUsers.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                No users found
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            filteredUsers.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">
+                        {user.avatar || user.name.substring(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-medium">{user.name}</div>
+                      {user.id === currentUser?.id && (
+                        <div className="text-xs text-muted-foreground">(You)</div>
+                      )}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <Badge className={getRoleBadgeColor(user.role)}>
+                    {formatRoleName(user.role)}
+                  </Badge>
+                </TableCell>
+                <TableCell>{user.department || '-'}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <RBACWrapper requiredPermission={{ action: 'update', subject: 'users' }}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => onEdit(user.id)}
+                      >
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Edit user</span>
+                      </Button>
+                    </RBACWrapper>
+                    <RBACWrapper requiredPermission={{ action: 'delete', subject: 'users' }}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => onDelete(user.id)}
+                        disabled={user.id === currentUser?.id}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete user</span>
+                      </Button>
+                    </RBACWrapper>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>

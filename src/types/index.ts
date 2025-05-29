@@ -1,8 +1,7 @@
-
 // Types for the entire application
 
-// User Roles
-export type Role = 'admin' | 'recruiter' | 'hiring_manager' | 'viewer';
+// User Roles - Hierarchical structure
+export type Role = 'manage' | 'associate_manage' | 'hiring_manager' | 'recruiter';
 
 // Permission Types
 export type ActionType = 'create' | 'read' | 'update' | 'delete';
@@ -22,6 +21,8 @@ export interface User {
   department?: string;
   avatar?: string;
   permissions?: Permission[];
+  managerId?: string; // For hierarchical structure
+  teamMembers?: string[]; // IDs of users this person manages
 }
 
 // Job Type
@@ -313,3 +314,16 @@ export interface ApiKeySettings {
 export interface RolePermissions {
   [key: string]: Permission[];
 }
+
+// Role hierarchy levels (higher number = more permissions)
+export const ROLE_HIERARCHY: Record<Role, number> = {
+  manage: 4,
+  associate_manage: 3,
+  hiring_manager: 2,
+  recruiter: 1,
+};
+
+// Helper function to check if role A can access role B's permissions
+export const canAccessRole = (userRole: Role, targetRole: Role): boolean => {
+  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[targetRole];
+};
