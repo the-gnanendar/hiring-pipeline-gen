@@ -73,8 +73,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           description: "Failed to fetch user profile",
           variant: "destructive",
         });
-      } else {
-        setProfile(data);
+      } else if (data) {
+        // Type assertion to ensure role is one of the expected values
+        const profile: Profile = {
+          id: data.id,
+          email: data.email,
+          full_name: data.full_name,
+          role: data.role as 'recruiter' | 'hiring_manager' | 'admin',
+          recruiter_id: data.recruiter_id,
+          manager_id: data.manager_id,
+        };
+        setProfile(profile);
       }
     } catch (error) {
       console.error('Error:', error);

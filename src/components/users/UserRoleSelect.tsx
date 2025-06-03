@@ -1,56 +1,25 @@
 
-import React from 'react';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Role } from "@/types";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-interface UserRoleSelectProps {
-  userId: string;
-  currentRoleId: string;
-  disabled?: boolean;
-}
+export function UserRoleSelect() {
+  const { profile } = useAuth();
 
-export const UserRoleSelect: React.FC<UserRoleSelectProps> = ({ 
-  userId, 
-  currentRoleId, 
-  disabled = false 
-}) => {
-  const { toast } = useToast();
-  const { roles, getUserRole } = useAuth();
-  
-  const currentRole = getUserRole(currentRoleId);
-  
-  const handleRoleChange = (newRoleId: string) => {
-    // In a real app, you would call an API to update the user's role
-    console.log(`Changing user ${userId} role to ${newRoleId}`);
-    
-    const newRole = getUserRole(newRoleId);
-    
-    toast({
-      title: "Role updated",
-      description: `User role has been updated to ${newRole?.name || 'Unknown'}`,
-    });
-  };
-  
   return (
-    <Select defaultValue={currentRoleId} onValueChange={handleRoleChange} disabled={disabled}>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Select a role" />
-      </SelectTrigger>
-      <SelectContent>
-        {roles.map(role => (
-          <SelectItem key={role.id} value={role.id}>
-            {role.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <Card>
+      <CardHeader>
+        <CardTitle>User Role Selection</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">
+            User role selection will be implemented here.
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Current user role: {profile?.role}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
-};
+}
