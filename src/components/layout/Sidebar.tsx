@@ -15,21 +15,22 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export function Sidebar() {
   const location = useLocation();
-  const { hasPermission, currentUser } = useAuth();
+  const { hasPermission, profile } = useAuth();
   
   // Define navigation items
   const navigation = [
     { name: 'Dashboard', href: '/', icon: <FileText className="h-5 w-5" /> },
-    { name: 'Candidates', href: '/candidates', icon: <Users className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'candidates' as const } },
-    { name: 'Jobs', href: '/jobs', icon: <FolderPlus className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'jobs' as const } },
-    { name: 'Workflow', href: '/workflow', icon: <Workflow className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'jobs' as const } },
-    { name: 'Reports', href: '/reports', icon: <BarChart3 className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'jobs' as const } },
+    { name: 'Candidates', href: '/candidates', icon: <Users className="h-5 w-5" />, permission: { action: 'read', subject: 'candidates' } },
+    { name: 'Jobs', href: '/jobs', icon: <FolderPlus className="h-5 w-5" />, permission: { action: 'read', subject: 'jobs' } },
+    { name: 'Interviews', href: '/interviews', icon: <Calendar className="h-5 w-5" />, permission: { action: 'read', subject: 'interviews' } },
+    { name: 'Workflow', href: '/workflow', icon: <Workflow className="h-5 w-5" />, permission: { action: 'read', subject: 'jobs' } },
+    { name: 'Reports', href: '/reports', icon: <BarChart3 className="h-5 w-5" />, permission: { action: 'read', subject: 'reports' } },
   ];
   
   // Define user management navigation items
   const userManagementNav = [
-    { name: 'User Management', href: '/users', icon: <User className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'users' as const } },
-    { name: 'Role Management', href: '/roles', icon: <Shield className="h-5 w-5" />, permission: { action: 'read' as const, subject: 'users' as const } },
+    { name: 'User Management', href: '/users', icon: <User className="h-5 w-5" />, permission: { action: 'read', subject: 'users' } },
+    { name: 'Role Management', href: '/roles', icon: <Shield className="h-5 w-5" />, role: 'admin' },
   ];
   
   return (
@@ -71,7 +72,8 @@ export function Sidebar() {
 
         {/* User Management Section */}
         {userManagementNav.some(item => 
-          !item.permission || hasPermission(item.permission.action, item.permission.subject)
+          (!item.permission || hasPermission(item.permission.action, item.permission.subject)) ||
+          (item.role && profile?.role === item.role)
         ) && (
           <>
             <div className="my-3 px-3">
@@ -81,7 +83,8 @@ export function Sidebar() {
             <ul className="space-y-1">
               {userManagementNav.map((item) => {
                 const isActive = location.pathname === item.href;
-                const showItem = !item.permission || hasPermission(item.permission.action, item.permission.subject);
+                const showItem = (!item.permission || hasPermission(item.permission.action, item.permission.subject)) ||
+                                (item.role && profile?.role === item.role);
                 
                 if (!showItem) return null;
                 

@@ -1,27 +1,27 @@
 
-import { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Permission } from '@/types';
 
 interface RBACWrapperProps {
-  children: ReactNode;
+  children: React.ReactNode;
   requiredPermission?: {
-    action: Permission['action'];
-    subject: Permission['subject'];
+    action: string;
+    subject: string;
   };
-  fallback?: ReactNode;
+  fallback?: React.ReactNode;
 }
 
-export function RBACWrapper({
-  children,
-  requiredPermission,
-  fallback = null,
+export function RBACWrapper({ 
+  children, 
+  requiredPermission, 
+  fallback = null 
 }: RBACWrapperProps) {
   const { hasPermission } = useAuth();
-  
-  if (requiredPermission && !hasPermission(requiredPermission.action, requiredPermission.subject)) {
-    return <>{fallback}</>;
+
+  if (!requiredPermission) {
+    return <>{children}</>;
   }
-  
-  return <>{children}</>;
+
+  const hasAccess = hasPermission(requiredPermission.action, requiredPermission.subject);
+
+  return hasAccess ? <>{children}</> : <>{fallback}</>;
 }

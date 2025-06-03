@@ -1,4 +1,6 @@
 
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,56 +8,71 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, User, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { User, LogOut, Settings } from 'lucide-react';
 
 export function UserMenu() {
-  const { currentUser, currentRole, logout, hasPermission } = useAuth();
-  const navigate = useNavigate();
-  
-  if (!currentUser) return null;
-  
+  const { profile, signOut } = useAuth();
+
+  if (!profile) return null;
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'bg-red-100 text-red-800';
+      case 'hiring_manager':
+        return 'bg-blue-100 text-blue-800';
+      case 'recruiter':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 outline-none">
-          <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/20 transition-all">
-            <AvatarFallback className="text-xs bg-primary/10">
-              {currentUser.avatar || currentUser.name.substring(0, 2)}
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback>
+              {getInitials(profile.full_name)}
             </AvatarFallback>
           </Avatar>
-          <div className="hidden md:block text-start">
-            <p className="text-sm font-medium">{currentUser.name}</p>
-            <p className="text-xs text-muted-foreground capitalize">
-              {currentRole?.name || 'No Role'}
-            </p>
-          </div>
-        </button>
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{profile.full_name}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {profile.email}
+            </p>
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(profile.role)}`}>
+              {profile.role.replace('_', ' ')}
+            </span>
+          </div>
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/profile')}>
+        <DropdownMenuItem>
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
-        {hasPermission('read', 'settings') && (
-          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/settings')}>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-          </DropdownMenuItem>
-        )}
+        <DropdownMenuItem>
+          <Settings className="mr-2 h-4 w-4" />
+          <span>Settings</span>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
-          onClick={() => {
-            logout();
-            navigate('/login');
-          }}
-        >
+        <DropdownMenuItem onClick={signOut}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>

@@ -1,370 +1,202 @@
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { User, Permission, Role, ActionType, SubjectType, canAccessRoleLevel, hasPermission as checkPermission } from '@/types';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-// Default system roles that come with the application
-const defaultRoles: Role[] = [
-  {
-    id: 'role-1',
-    name: 'Manager',
-    description: 'Full system access and management capabilities',
-    level: 4,
-    isSystemRole: true,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    permissions: [
-      { action: 'create', subject: 'candidates' },
-      { action: 'read', subject: 'candidates' },
-      { action: 'update', subject: 'candidates' },
-      { action: 'delete', subject: 'candidates' },
-      { action: 'create', subject: 'jobs' },
-      { action: 'read', subject: 'jobs' },
-      { action: 'update', subject: 'jobs' },
-      { action: 'delete', subject: 'jobs' },
-      { action: 'create', subject: 'interviews' },
-      { action: 'read', subject: 'interviews' },
-      { action: 'update', subject: 'interviews' },
-      { action: 'delete', subject: 'interviews' },
-      { action: 'create', subject: 'users' },
-      { action: 'read', subject: 'users' },
-      { action: 'update', subject: 'users' },
-      { action: 'delete', subject: 'users' },
-      { action: 'create', subject: 'roles' },
-      { action: 'read', subject: 'roles' },
-      { action: 'update', subject: 'roles' },
-      { action: 'delete', subject: 'roles' },
-      { action: 'read', subject: 'settings' },
-      { action: 'update', subject: 'settings' },
-      { action: 'read', subject: 'reports' },
-    ],
-  },
-  {
-    id: 'role-2',
-    name: 'Associate Manager',
-    description: 'Advanced management with limited admin access',
-    level: 3,
-    isSystemRole: true,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    permissions: [
-      { action: 'create', subject: 'candidates' },
-      { action: 'read', subject: 'candidates' },
-      { action: 'update', subject: 'candidates' },
-      { action: 'delete', subject: 'candidates' },
-      { action: 'create', subject: 'jobs' },
-      { action: 'read', subject: 'jobs' },
-      { action: 'update', subject: 'jobs' },
-      { action: 'delete', subject: 'jobs' },
-      { action: 'create', subject: 'interviews' },
-      { action: 'read', subject: 'interviews' },
-      { action: 'update', subject: 'interviews' },
-      { action: 'delete', subject: 'interviews' },
-      { action: 'read', subject: 'users' },
-      { action: 'update', subject: 'users' },
-      { action: 'read', subject: 'reports' },
-    ],
-  },
-  {
-    id: 'role-3',
-    name: 'Hiring Manager',
-    description: 'Can manage hiring process and review candidates',
-    level: 2,
-    isSystemRole: true,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    permissions: [
-      { action: 'read', subject: 'candidates' },
-      { action: 'update', subject: 'candidates' },
-      { action: 'read', subject: 'jobs' },
-      { action: 'create', subject: 'interviews' },
-      { action: 'read', subject: 'interviews' },
-      { action: 'update', subject: 'interviews' },
-      { action: 'read', subject: 'users' },
-      { action: 'read', subject: 'reports' },
-    ],
-  },
-  {
-    id: 'role-4',
-    name: 'Recruiter',
-    description: 'Can manage candidates and basic recruitment tasks',
-    level: 1,
-    isSystemRole: true,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    permissions: [
-      { action: 'create', subject: 'candidates' },
-      { action: 'read', subject: 'candidates' },
-      { action: 'update', subject: 'candidates' },
-      { action: 'read', subject: 'jobs' },
-      { action: 'create', subject: 'interviews' },
-      { action: 'read', subject: 'interviews' },
-      { action: 'update', subject: 'interviews' },
-      { action: 'read', subject: 'users' },
-    ],
-  },
-];
-
-// Mock users with role IDs
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'System Manager',
-    email: 'manager@example.com',
-    roleId: 'role-1',
-    avatar: 'SM',
-    teamMembers: ['2', '3', '4', '5'],
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: '2',
-    name: 'Associate Manager',
-    email: 'associate@example.com',
-    roleId: 'role-2',
-    avatar: 'AM',
-    department: 'HR',
-    managerId: '1',
-    teamMembers: ['3', '4', '5'],
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: '3',
-    name: 'Hiring Manager',
-    email: 'hiring@example.com',
-    roleId: 'role-3',
-    avatar: 'HM',
-    department: 'Engineering',
-    managerId: '2',
-    teamMembers: ['4', '5'],
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: '4',
-    name: 'Recruiter One',
-    email: 'recruiter1@example.com',
-    roleId: 'role-4',
-    avatar: 'R1',
-    department: 'HR',
-    managerId: '3',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: '5',
-    name: 'Recruiter Two',
-    email: 'recruiter2@example.com',
-    roleId: 'role-4',
-    avatar: 'R2',
-    department: 'Engineering',
-    managerId: '3',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-];
+interface Profile {
+  id: string;
+  email: string;
+  full_name: string;
+  role: 'recruiter' | 'hiring_manager' | 'admin';
+  recruiter_id?: string;
+  manager_id?: string;
+}
 
 interface AuthContextType {
-  currentUser: User | null;
-  currentRole: Role | null;
-  login: (email: string) => void;
-  logout: () => void;
-  hasPermission: (action: ActionType, subject: SubjectType) => boolean;
-  users: User[];
-  roles: Role[];
-  isAuthenticated: boolean;
-  getAccessibleUsers: () => User[];
-  canAccessUser: (userId: string) => boolean;
-  getUserRole: (roleId: string) => Role | undefined;
-  createRole: (role: Omit<Role, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateRole: (roleId: string, updates: Partial<Role>) => void;
-  deleteRole: (roleId: string) => void;
+  user: User | null;
+  profile: Profile | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  hasPermission: (action: string, subject: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [roles, setRoles] = useState<Role[]>(defaultRoles);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Check for saved user on component mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    const savedRoles = localStorage.getItem('roles');
-    
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-      setIsAuthenticated(true);
-    }
-    
-    if (savedRoles) {
-      setRoles(JSON.parse(savedRoles));
-    }
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+          setLoading(false);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = (email: string) => {
-    const user = mockUsers.find(u => u.email === email);
-    if (user) {
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      localStorage.setItem('currentUser', JSON.stringify(user));
-    } else {
-      console.error('User not found');
-    }
-  };
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-  const logout = () => {
-    setCurrentUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('currentUser');
-  };
-
-  const getCurrentRole = (): Role | null => {
-    if (!currentUser) return null;
-    return roles.find(role => role.id === currentUser.roleId) || null;
-  };
-
-  const currentRole = getCurrentRole();
-
-  const hasPermission = (action: ActionType, subject: SubjectType): boolean => {
-    if (!currentRole) return false;
-    return checkPermission(currentRole.permissions, action, subject);
-  };
-
-  const getUserRole = (roleId: string): Role | undefined => {
-    return roles.find(role => role.id === roleId);
-  };
-
-  // Get users that current user can access based on hierarchy
-  const getAccessibleUsers = (): User[] => {
-    if (!currentUser || !currentRole) return [];
-    
-    // Users with highest level role can see everyone
-    const maxLevel = Math.max(...roles.map(r => r.level));
-    if (currentRole.level === maxLevel) {
-      return mockUsers;
-    }
-    
-    // Users can see themselves, their team members, and users with lower or equal role levels
-    const accessibleUserIds = new Set([currentUser.id]);
-    
-    // Add team members if any
-    if (currentUser.teamMembers) {
-      currentUser.teamMembers.forEach(id => accessibleUserIds.add(id));
-    }
-    
-    // Recursively add team members of team members
-    const addTeamMembersRecursively = (userId: string) => {
-      const user = mockUsers.find(u => u.id === userId);
-      if (user?.teamMembers) {
-        user.teamMembers.forEach(memberId => {
-          if (!accessibleUserIds.has(memberId)) {
-            accessibleUserIds.add(memberId);
-            addTeamMembersRecursively(memberId);
-          }
+      if (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch user profile",
+          variant: "destructive",
         });
+      } else {
+        setProfile(data);
       }
-    };
-    
-    if (currentUser.teamMembers) {
-      currentUser.teamMembers.forEach(memberId => {
-        addTeamMembersRecursively(memberId);
-      });
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    // Filter by role level - can only see users with same or lower role level
-    return mockUsers.filter(user => {
-      if (!accessibleUserIds.has(user.id)) return false;
-      
-      const userRole = getUserRole(user.roleId);
-      if (!userRole) return false;
-      
-      return canAccessRoleLevel(currentRole.level, userRole.level);
+  };
+
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+
+    toast({
+      title: "Success",
+      description: "Signed in successfully",
     });
   };
 
-  // Check if current user can access specific user
-  const canAccessUser = (userId: string): boolean => {
-    if (!currentUser) return false;
-    
-    const accessibleUsers = getAccessibleUsers();
-    return accessibleUsers.some(user => user.id === userId);
+  const signUp = async (email: string, password: string, fullName: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+
+    toast({
+      title: "Success",
+      description: "Account created successfully. Please check your email to verify your account.",
+    });
   };
 
-  // Role management functions
-  const createRole = (roleData: Omit<Role, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newRole: Role = {
-      ...roleData,
-      id: `role-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
     
-    const updatedRoles = [...roles, newRole];
-    setRoles(updatedRoles);
-    localStorage.setItem('roles', JSON.stringify(updatedRoles));
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+
+    toast({
+      title: "Success",
+      description: "Signed out successfully",
+    });
   };
 
-  const updateRole = (roleId: string, updates: Partial<Role>) => {
-    const updatedRoles = roles.map(role => 
-      role.id === roleId 
-        ? { ...role, ...updates, updatedAt: new Date().toISOString() }
-        : role
-    );
+  const hasPermission = (action: string, subject: string): boolean => {
+    if (!profile) return false;
     
-    setRoles(updatedRoles);
-    localStorage.setItem('roles', JSON.stringify(updatedRoles));
-  };
-
-  const deleteRole = (roleId: string) => {
-    // Prevent deletion of system roles
-    const role = roles.find(r => r.id === roleId);
-    if (role?.isSystemRole) {
-      console.error('Cannot delete system role');
-      return;
+    // Admin has all permissions
+    if (profile.role === 'admin') return true;
+    
+    // Basic permissions for all authenticated users
+    if (action === 'read' && ['candidates', 'jobs', 'interviews'].includes(subject)) {
+      return true;
     }
     
-    // Check if any users are assigned to this role
-    const usersWithRole = mockUsers.filter(user => user.roleId === roleId);
-    if (usersWithRole.length > 0) {
-      console.error('Cannot delete role that is assigned to users');
-      return;
+    // Hiring managers can read users and have additional permissions
+    if (profile.role === 'hiring_manager') {
+      if (subject === 'users' && ['read', 'update'].includes(action)) return true;
+      if (subject === 'reports' && action === 'read') return true;
     }
     
-    const updatedRoles = roles.filter(role => role.id !== roleId);
-    setRoles(updatedRoles);
-    localStorage.setItem('roles', JSON.stringify(updatedRoles));
+    // Recruiters can create and update their own data
+    if (profile.role === 'recruiter') {
+      if (['candidates', 'jobs', 'interviews'].includes(subject) && 
+          ['create', 'update', 'delete'].includes(action)) {
+        return true;
+      }
+    }
+    
+    return false;
+  };
+
+  const value = {
+    user,
+    profile,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    hasPermission,
   };
 
   return (
-    <AuthContext.Provider 
-      value={{ 
-        currentUser,
-        currentRole,
-        login, 
-        logout, 
-        hasPermission, 
-        users: mockUsers,
-        roles,
-        isAuthenticated,
-        getAccessibleUsers,
-        canAccessUser,
-        getUserRole,
-        createRole,
-        updateRole,
-        deleteRole
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = (): AuthContextType => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}

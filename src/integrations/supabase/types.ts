@@ -9,13 +9,306 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      candidates: {
+        Row: {
+          application_date: string | null
+          created_at: string | null
+          email: string
+          id: string
+          job_id: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          position: string
+          recruiter_id: string
+          resume_url: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          application_date?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          job_id?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          position: string
+          recruiter_id: string
+          resume_url?: string | null
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          application_date?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          job_id?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          position?: string
+          recruiter_id?: string
+          resume_url?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidates_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidates_recruiter_id_fkey"
+            columns: ["recruiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interviews: {
+        Row: {
+          candidate_id: string
+          created_at: string | null
+          feedback: string | null
+          id: string
+          interview_date: string
+          interview_type: string
+          interviewer_id: string
+          job_id: string
+          notes: string | null
+          rating: number | null
+          recruiter_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          interview_date: string
+          interview_type: string
+          interviewer_id: string
+          job_id: string
+          notes?: string | null
+          rating?: number | null
+          recruiter_id: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          interview_date?: string
+          interview_type?: string
+          interviewer_id?: string
+          job_id?: string
+          notes?: string | null
+          rating?: number | null
+          recruiter_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interviews_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interviews_interviewer_id_fkey"
+            columns: ["interviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interviews_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interviews_recruiter_id_fkey"
+            columns: ["recruiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          created_at: string | null
+          department: string
+          description: string | null
+          id: string
+          job_type: string
+          location: string
+          posted_date: string | null
+          recruiter_id: string
+          requirements: string[] | null
+          responsibilities: string[] | null
+          salary_currency: string | null
+          salary_max: number | null
+          salary_min: number | null
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department: string
+          description?: string | null
+          id?: string
+          job_type: string
+          location: string
+          posted_date?: string | null
+          recruiter_id: string
+          requirements?: string[] | null
+          responsibilities?: string[] | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          status: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string
+          description?: string | null
+          id?: string
+          job_type?: string
+          location?: string
+          posted_date?: string | null
+          recruiter_id?: string
+          requirements?: string[] | null
+          responsibilities?: string[] | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_recruiter_id_fkey"
+            columns: ["recruiter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pipeline_stages: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          job_id: string
+          name: string
+          stage_order: number
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          job_id: string
+          name: string
+          stage_order: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          job_id?: string
+          name?: string
+          stage_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_stages_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          manager_id: string | null
+          recruiter_id: string | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          id: string
+          manager_id?: string | null
+          recruiter_id?: string | null
+          role: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          manager_id?: string | null
+          recruiter_id?: string | null
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_managed_recruiters: {
+        Args: { manager_id: string }
+        Returns: {
+          recruiter_uuid: string
+        }[]
+      }
+      get_user_recruiter_id: {
+        Args: { user_id: string }
+        Returns: string
+      }
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
