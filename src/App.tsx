@@ -9,6 +9,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 // Pages
 import Index from '@/pages/Index';
 import Login from '@/pages/Login';
+import Screening from '@/pages/Screening';
 import Candidates from '@/pages/Candidates';
 import Jobs from '@/pages/Jobs';
 import Interviews from '@/pages/Interviews';
@@ -31,8 +32,15 @@ function App() {
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/" element={
             <ProtectedRoute>
-              <Layout title="Dashboard">
+              <Layout title="Enterprise Dashboard">
                 <Index />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/screening" element={
+            <ProtectedRoute>
+              <Layout title="Candidate Screening">
+                <Screening />
               </Layout>
             </ProtectedRoute>
           } />
